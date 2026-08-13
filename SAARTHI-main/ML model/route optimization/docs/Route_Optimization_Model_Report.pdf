@@ -1,0 +1,137 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 7 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 3418 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 45 792 Tm (Route Optimization Model - Implementation Report) Tj
+1 0 0 1 45 778 Tm () Tj
+1 0 0 1 45 764 Tm (Project Objective) Tj
+1 0 0 1 45 750 Tm (- Build an end-to-end route optimizer using graph algorithms \(Dijkstra\) on Indian road/rail network.) Tj
+1 0 0 1 45 736 Tm (- Add AI-generated natural language route explanations.) Tj
+1 0 0 1 45 722 Tm (- Provide interactive map visualization and route overlays.) Tj
+1 0 0 1 45 708 Tm () Tj
+1 0 0 1 45 694 Tm (Backend Delivered \(FastAPI\)) Tj
+1 0 0 1 45 680 Tm (- API endpoints: GET /api/graph and POST /api/route.) Tj
+1 0 0 1 45 666 Tm (- Graph engine supports optimization by time, cost, and distance.) Tj
+1 0 0 1 45 652 Tm (- Route modes: road only, rail only, and road+rail.) Tj
+1 0 0 1 45 638 Tm (- Segment-wise output with totals \(time, INR cost, distance\).) Tj
+1 0 0 1 45 624 Tm (- Rule-based alerts for major NH advisory patterns.) Tj
+1 0 0 1 45 610 Tm (- Cargo intelligence advisory module integrated.) Tj
+1 0 0 1 45 596 Tm () Tj
+1 0 0 1 45 582 Tm (Graph & Routing Core) Tj
+1 0 0 1 45 568 Tm (- Implemented weighted graph traversal with Dijkstra.) Tj
+1 0 0 1 45 554 Tm (- Unified adjacency representation for road and rail edges.) Tj
+1 0 0 1 45 540 Tm (- Dynamic objective switching at runtime:) Tj
+1 0 0 1 45 526 Tm (  * time -> fastest route) Tj
+1 0 0 1 45 512 Tm (  * cost -> cheapest route \(toll/fare\)) Tj
+1 0 0 1 45 498 Tm (  * km -> shortest route) Tj
+1 0 0 1 45 484 Tm (- Supports mixed-mode pathfinding in road_rail mode.) Tj
+1 0 0 1 45 470 Tm () Tj
+1 0 0 1 45 456 Tm (Data Layer) Tj
+1 0 0 1 45 442 Tm (- Added demo 21-city India network model with road + rail edges.) Tj
+1 0 0 1 45 428 Tm (- Edge schema includes: id, from_city, to_city, type, label, distance_km, time_hours, cost_inr.) Tj
+1 0 0 1 45 414 Tm (- City coordinate dictionaries prepared for map rendering.) Tj
+1 0 0 1 45 400 Tm () Tj
+1 0 0 1 45 386 Tm (Cargo System Upgrade \(as requested\)) Tj
+1 0 0 1 45 372 Tm (- Replaced simple cargo list with 10 categorized cargo groups and sub-types:) Tj
+1 0 0 1 45 358 Tm (  1\) Perishable Goods) Tj
+1 0 0 1 45 344 Tm (  2\) Non-Perishable Goods) Tj
+1 0 0 1 45 330 Tm (  3\) Fragile Goods) Tj
+1 0 0 1 45 316 Tm (  4\) Hazardous Materials \(Hazmat\)) Tj
+1 0 0 1 45 302 Tm (  5\) Livestock) Tj
+1 0 0 1 45 288 Tm (  6\) Heavy / Bulk Cargo) Tj
+1 0 0 1 45 274 Tm (  7\) High-Value Goods) Tj
+1 0 0 1 45 260 Tm (  8\) General Cargo) Tj
+1 0 0 1 45 246 Tm (  9\) Oversized Cargo) Tj
+1 0 0 1 45 232 Tm ( 10\) Liquid Cargo) Tj
+1 0 0 1 45 218 Tm (- Frontend sends cargo as "Category|Item"; backend parses and tailors advisory notes.) Tj
+1 0 0 1 45 204 Tm () Tj
+1 0 0 1 45 190 Tm (AI Route Briefing) Tj
+1 0 0 1 45 176 Tm (- Added Claude integration via Anthropic Messages API.) Tj
+1 0 0 1 45 162 Tm (- Prompt grounded on computed route facts only \(anti-hallucination instruction\).) Tj
+1 0 0 1 45 148 Tm (- Added deterministic fallback explanation when API key is absent/unavailable.) Tj
+1 0 0 1 45 134 Tm () Tj
+1 0 0 1 45 120 Tm (ML Component) Tj
+1 0 0 1 45 106 Tm (- Added optional ML weight adjuster module for time/cost multipliers.) Tj
+1 0 0 1 45 92 Tm (- Synthetic training pipeline included so feature works out-of-the-box.) Tj
+1 0 0 1 45 78 Tm (- Artifact schema checks and retraining guard implemented for feature mismatch recovery.) Tj
+1 0 0 1 45 64 Tm (- Updated ML cargo handling to align with new category format.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 7 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 2573 >>
+stream
+BT
+/F1 11 Tf
+1 0 0 1 45 792 Tm () Tj
+1 0 0 1 45 778 Tm (Map Integration Evolution) Tj
+1 0 0 1 45 764 Tm (- Replaced custom SVG network panel with real map container.) Tj
+1 0 0 1 45 750 Tm (- Google Maps route rendering integrated \(when key is available\).) Tj
+1 0 0 1 45 736 Tm (- Added no-key fallback path:) Tj
+1 0 0 1 45 722 Tm (  * OpenStreetMap tiles via Leaflet) Tj
+1 0 0 1 45 708 Tm (  * OSRM routing for drivable paths) Tj
+1 0 0 1 45 694 Tm (  * polyline fallback when OSRM is unavailable or for rail-only visualization) Tj
+1 0 0 1 45 680 Tm () Tj
+1 0 0 1 45 666 Tm (Frontend Delivered) Tj
+1 0 0 1 45 652 Tm (- Route builder panel with origin, destination, mode, optimize-by, cargo type, ML toggle, month.) Tj
+1 0 0 1 45 638 Tm (- API response rendering: explanation, totals, alerts, cargo notes, and segment table.) Tj
+1 0 0 1 45 624 Tm (- Automatic map provider behavior:) Tj
+1 0 0 1 45 610 Tm (  * If GMAPS_API_KEY exists -> Google Maps) Tj
+1 0 0 1 45 596 Tm (  * Else -> OpenStreetMap fallback \(no API key\)) Tj
+1 0 0 1 45 582 Tm () Tj
+1 0 0 1 45 568 Tm (Reliability & Debugging Work Completed) Tj
+1 0 0 1 45 554 Tm (- Fixed backend reload crash caused by stale import after cargo module refactor.) Tj
+1 0 0 1 45 540 Tm (- Fixed ML artifact feature-length mismatch handling.) Tj
+1 0 0 1 45 526 Tm (- Corrected route behavior for Nashik->Pune timing example in demo data.) Tj
+1 0 0 1 45 512 Tm (- Preserved API compatibility while extending cargo and map functionality.) Tj
+1 0 0 1 45 498 Tm () Tj
+1 0 0 1 45 484 Tm (Key Files Created/Updated) Tj
+1 0 0 1 45 470 Tm (- backend/main.py, backend/router.py, backend/graph_data.py) Tj
+1 0 0 1 45 456 Tm (- backend/alerts.py, backend/cargo.py, backend/llm.py, backend/ml_weight_adjuster.py) Tj
+1 0 0 1 45 442 Tm (- frontend/index.html, frontend/app.js, frontend/styles.css, frontend/config.js) Tj
+1 0 0 1 45 428 Tm (- README.md, .env.example, requirements.txt) Tj
+1 0 0 1 45 414 Tm () Tj
+1 0 0 1 45 400 Tm (How to Run) Tj
+1 0 0 1 45 386 Tm (1. Start server: python -m uvicorn backend.main:app --reload --port 8000) Tj
+1 0 0 1 45 372 Tm (2. Open: http://127.0.0.1:8000) Tj
+1 0 0 1 45 358 Tm (3. Optional Google mode: set frontend/config.js -> window.GMAPS_API_KEY="YOUR_KEY") Tj
+1 0 0 1 45 344 Tm (4. Without key, OpenStreetMap fallback is used automatically.) Tj
+1 0 0 1 45 330 Tm () Tj
+1 0 0 1 45 316 Tm (Current Status) Tj
+1 0 0 1 45 302 Tm (- End-to-end MVP is implemented and operational.) Tj
+1 0 0 1 45 288 Tm (- Supports routing, cargo advisories, alerts, AI explanation fallback, and map visualization.) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000247 00000 n 
+0000003717 00000 n 
+0000003843 00000 n 
+0000006468 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+6538
+%%EOF

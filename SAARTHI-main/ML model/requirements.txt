@@ -1,0 +1,22 @@
+# Saarthi ML Models — Python dependencies
+# =========================================
+# Core (required)
+numpy>=1.24.0
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.0.0
+
+# Model 2: Production Forecasting (optional — falls back to linear if absent)
+torch>=2.0.0
+
+# Model 1: Embedding-based retrieval (optional — falls back to keyword if absent)
+sentence-transformers>=2.6.0
+faiss-cpu>=1.7.4
+
+# Data loading utilities
+pandas>=2.0.0
+scikit-learn>=1.3.0
+
+# Dev / testing
+pytest>=8.0.0
+httpx>=0.27.0        # for FastAPI TestClient

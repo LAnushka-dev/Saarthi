@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saarthi — Agricultural Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --forest:#0F2D1A;--forest-mid:#1A4028;--forest-light:#2D6040;
+  --terra:#C4622D;--terra-light:#E07840;--terra-pale:#F5E8DF;
+  --cream:#FAF8F3;--parchment:#F2EDE3;--wheat:#E5D7B8;
+  --ink:#1A1208;--charcoal:#3D3020;--muted:#7A6A52;
+  --leaf:#3DAA5C;--leaf-pale:#D4F0DC;
+  --amber:#D4910A;--amber-pale:#FDF3D0;
+  --red:#B83030;--red-pale:#FDDCDC;
+  --blue:#1E5FA8;--blue-pale:#D8E8FA;
+  --border:#DDD3BC;
+  --shadow:0 2px 12px rgba(15,45,26,.10);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;font-size:14px;}
+
+/* ─── SHELL ─── */
+.shell{display:grid;grid-template-rows:auto auto 1fr;min-height:100vh;}
+
+/* ─── HEADER ─── */
+header{background:var(--forest);padding:0 32px;display:flex;align-items:stretch;gap:0;border-bottom:2px solid var(--terra);}
+.logo{display:flex;align-items:center;gap:12px;padding:16px 0;border-right:1px solid var(--forest-light);padding-right:24px;margin-right:24px;}
+.logo-badge{width:38px;height:38px;background:var(--terra);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.logo h1{font-family:'Playfair Display',serif;color:var(--cream);font-size:20px;font-weight:600;letter-spacing:.3px;}
+.logo p{color:var(--wheat);font-size:11px;font-weight:300;margin-top:1px;opacity:.8;}
+.header-nav{display:flex;align-items:stretch;gap:0;flex:1;}
+.hnav-btn{display:flex;align-items:center;gap:8px;padding:0 20px;color:var(--wheat);font-size:13px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;user-select:none;white-space:nowrap;}
+.hnav-btn:hover{color:var(--cream);background:rgba(255,255,255,.05);}
+.hnav-btn.active{color:var(--terra-light);border-bottom-color:var(--terra);}
+.hnav-icon{font-size:16px;opacity:.9;}
+.header-right{display:flex;align-items:center;padding-left:20px;margin-left:auto;gap:12px;}
+.hbadge{background:var(--terra);color:white;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;font-family:'IBM Plex Mono',monospace;}
+
+/* ─── CONTEXT BAR ─── */
+.ctx-bar{background:var(--forest-mid);padding:8px 32px;display:flex;align-items:center;gap:16px;font-size:11px;color:var(--wheat);border-bottom:1px solid var(--forest-light);}
+.ctx-bar span{opacity:.7;}
+.ctx-dot{width:6px;height:6px;background:var(--leaf);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* ─── MAIN ─── */
+.page{display:none;padding:28px 32px;max-width:1280px;}
+.page.active{display:block;}
+
+/* ─── SECTION HEADING ─── */
+.pg-head{margin-bottom:24px;display:flex;align-items:flex-end;gap:16px;}
+.pg-head-text h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:600;color:var(--forest);}
+.pg-head-text p{color:var(--muted);font-size:12px;margin-top:3px;line-height:1.6;}
+.pg-model-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;background:var(--parchment);border:1px solid var(--border);border-radius:4px;padding:3px 8px;color:var(--terra);white-space:nowrap;margin-bottom:4px;display:inline-block;}
+
+/* ─── CARDS ─── */
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);}
+.card-sm{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;}
+.card-head{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--forest);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+
+/* ─── FORM ELEMENTS ─── */
+label{font-size:11px;font-weight:600;color:var(--charcoal);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;}
+input[type=text],select,textarea{
+  width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;
+  font-family:'DM Sans',sans-serif;font-size:13px;background:var(--cream);
+  color:var(--ink);outline:none;transition:border-color .15s,background .15s;appearance:none;
+}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--terra);background:#fff;}
+input[type=range]{width:100%;accent-color:var(--terra);cursor:pointer;}
+.form-row{margin-bottom:14px;}
+.form-grid{display:grid;gap:12px;}
+.form-grid-2{grid-template-columns:1fr 1fr;}
+.form-grid-3{grid-template-columns:1fr 1fr 1fr;}
+.val-badge{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--terra);min-width:52px;text-align:right;}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none;}
+.btn-primary{background:var(--terra);color:#fff;}
+.btn-primary:hover{background:var(--terra-light);}
+.btn-ghost{background:transparent;color:var(--terra);border:1px solid var(--terra);}
+.btn-ghost:hover{background:var(--terra-pale);}
+.btn-full{width:100%;justify-content:center;}
+
+/* ─── ALERT BADGES ─── */
+.alert{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace;}
+.alert-critical{background:var(--red-pale);color:var(--red);border:1px solid #F5B5B5;}
+.alert-warning{background:var(--amber-pale);color:var(--amber);border:1px solid #F0D080;}
+.alert-stable{background:#EDF7F1;color:#1E7A3A;border:1px solid #A8DFB8;}
+.alert-surplus{background:var(--blue-pale);color:var(--blue);border:1px solid #A8CBF0;}
+
+/* ─── STAT GRID ─── */
+.stat-grid{display:grid;gap:12px;margin-bottom:20px;}
+.stat-grid-4{grid-template-columns:repeat(4,1fr);}
+.stat-grid-3{grid-template-columns:repeat(3,1fr);}
+.stat-tile{background:white;border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-left:3px solid var(--terra);}
+.stat-tile .num{font-family:'Playfair Display',serif;font-size:26px;color:var(--forest);line-height:1;}
+.stat-tile .lbl{font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.4px;}
+.stat-tile.green{border-left-color:var(--leaf);}
+.stat-tile.amber{border-left-color:var(--amber);}
+.stat-tile.red{border-left-color:var(--red);}
+.stat-tile.blue{border-left-color:var(--blue);}
+
+/* ─── PROGRESS BAR ─── */
+.prog-wrap{display:flex;align-items:center;gap:8px;}
+.prog-track{flex:1;height:6px;background:var(--parchment);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s;}
+
+/* ─── RESULT TABLE ─── */
+.rtable{width:100%;border-collapse:collapse;}
+.rtable th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--parchment);}
+.rtable td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.rtable tr:last-child td{border-bottom:none;}
+.rtable tr:hover td{background:var(--cream);}
+.grade-A{background:#D4F0DC;color:#1A5E2A;padding:2px 8px;border-radius:4px;font-weight:600;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+.grade-B{background:var(--amber-pale);color:#7A5500;padding:2px 8px;border-radius:4px;font-weight:600;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+.grade-C{background:var(--terra-pale);color:#8B3A0A;padding:2px 8px;border-radius:4px;font-weight:600;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+.score-bar{display:flex;align-items:center;gap:6px;}
+.score-track{width:60px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.score-fill{height:100%;background:var(--terra);border-radius:3px;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ─── AI BOX ─── */
+.ai-block{background:var(--parchment);border:1px solid var(--wheat);border-left:3px solid var(--terra);border-radius:8px;padding:14px;margin-top:14px;}
+.ai-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--terra);margin-bottom:6px;font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:6px;}
+.ai-label::before{content:'◈';font-size:12px;}
+.ai-text{font-size:13px;line-height:1.7;color:var(--charcoal);}
+.ai-spin{color:var(--muted);font-size:12px;font-style:italic;animation:fadeIn 1s infinite alternate;}
+@keyframes fadeIn{from{opacity:.4;}to{opacity:1;}}
+
+/* ─── PLACEHOLDER ─── */
+.placeholder{text-align:center;padding:50px 24px;color:var(--muted);}
+.placeholder .ico{font-size:44px;margin-bottom:10px;opacity:.6;}
+
+/* ─── DIVIDER ─── */
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+
+/* ─── FORECAST CHART ─── */
+.chart-wrap{position:relative;height:140px;margin:14px 0 0;}
+.chart-bars{display:flex;align-items:flex-end;gap:4px;height:100%;padding-bottom:20px;}
+.cbar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;height:100%;justify-content:flex-end;}
+.cbar{width:100%;border-radius:4px 4px 0 0;transition:height .4s;position:relative;min-height:4px;}
+.cbar-lbl{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;}
+.ci-box{background:rgba(196,98,45,.15);border:1px dashed var(--terra);border-radius:4px;padding:4px 10px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--terra);text-align:center;margin-top:8px;}
+
+/* ─── ZONE MAP ─── */
+.zone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.zone-tile{border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.zone-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.zone-tile.critical::before{background:var(--red);}
+.zone-tile.warning::before{background:var(--amber);}
+.zone-tile.stable::before{background:var(--leaf);}
+.zone-tile.surplus::before{background:var(--blue);}
+.zone-tile:hover{transform:translateY(-1px);box-shadow:var(--shadow);}
+.zone-tile.selected{background:var(--parchment);border-color:var(--terra);}
+.zone-id{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:2px;}
+.zone-name{font-size:13px;font-weight:600;color:var(--forest);margin-bottom:4px;}
+.zone-states{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:6px;}
+.suf-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px;}
+.suf-fill{height:100%;border-radius:2px;}
+
+/* ─── CROP BALANCE TABLE ─── */
+.cb-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
+.cb-row:last-child{border-bottom:none;}
+.cb-crop{flex:1;font-size:13px;font-weight:500;}
+.cb-need{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;min-width:80px;text-align:right;}
+.cb-surplus{font-size:12px;font-family:'IBM Plex Mono',monospace;min-width:80px;text-align:right;font-weight:600;}
+.surplus-pos{color:var(--blue);}
+.surplus-neg{color:var(--red);}
+
+/* ─── MONTH PILLS ─── */
+.month-pill{display:inline-block;font-size:10px;padding:2px 7px;border-radius:3px;font-family:'IBM Plex Mono',monospace;}
+.month-active{background:var(--leaf-pale);color:#1A5E2A;font-weight:600;}
+.month-inactive{background:var(--parchment);color:var(--muted);}
+
+/* ─── RECS ─── */
+.rec-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;line-height:1.6;}
+.rec-item:last-child{border-bottom:none;}
+.rec-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+
+/* ─── TWO-COL ─── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:900px){.two-col,.three-col,.form-grid-2,.form-grid-3{grid-template-columns:1fr;}.stat-grid-4{grid-template-columns:repeat(2,1fr);}.zone-grid{grid-template-columns:repeat(2,1fr);}header{flex-wrap:wrap;}.header-nav{overflow-x:auto;}}
+
+/* ─── SEARCH BOX (model 1) ─── */
+.big-search{display:flex;gap:10px;margin-bottom:16px;}
+.big-search input{flex:1;padding:12px 16px;font-size:14px;border:1.5px solid var(--border);border-radius:10px;background:white;}
+.big-search input:focus{border-color:var(--terra);}
+
+/* ─── CONFIDENCE METER ─── */
+.conf-ring{width:56px;height:56px;position:relative;flex-shrink:0;}
+.conf-ring svg{transform:rotate(-90deg);}
+.conf-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--terra);}
+
+/* ─── TOOLTIP CHIP ─── */
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--parchment);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:11px;color:var(--charcoal);}
+
+/* scroll */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-badge">🌾</div>
+    <div>
+      <h1>Saarthi</h1>
+      <p>Agricultural Intelligence Platform</p>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <div class="hnav-btn active" onclick="switchPage('m1')" id="nav-m1"><span class="hnav-icon">🔍</span>Crop Knowledge Engine</div>
+    <div class="hnav-btn" onclick="switchPage('m2')" id="nav-m2"><span class="hnav-icon">📈</span>Production Forecast</div>
+    <div class="hnav-btn" onclick="switchPage('m3')" id="nav-m3"><span class="hnav-icon">⚖️</span>Surplus &amp; Deficit</div>
+  </nav>
+  <div class="header-right"><span class="hbadge">3 Models Live</span></div>
+</header>
+
+<!-- CTX BAR -->
+<div class="ctx-bar">
+  <div class="ctx-dot"></div>
+  <span>All models running in-browser (JS port of Python originals) · Claude API for NL summaries ·</span>
+  <span id="ctx-date"></span>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODEL 1 — CROP KNOWLEDGE ENGINE
+══════════════════════════════════════════════════════ -->
+<div class="page active" id="page-m1">
+  <div class="pg-head">
+    <div class="pg-head-text">
+      <span class="pg-model-tag">Model 1 · Sentence-transformer + FAISS · Keyword retrieval fallback</span>
+      <h2>Crop-State Knowledge Engine</h2>
+      <p>Query the knowledge base: "Which state has Grade A basmati right now?" · "Where to source tomatoes in January?" · "Karnataka's best kharif crop?"</p>
+    </div>
+  </div>
+
+  <div class="stat-grid stat-grid-4" style="margin-bottom:18px;">
+    <div class="stat-tile"><div class="num">30</div><div class="lbl">Crop-State pairs</div></div>
+    <div class="stat-tile green"><div class="num">15</div><div class="lbl">Unique crops</div></div>
+    <div class="stat-tile amber"><div class="num">14</div><div class="lbl">States covered</div></div>
+    <div class="stat-tile blue"><div class="num">2-stage</div><div class="lbl">Keyword + re-rank</div></div>
+  </div>
+
+  <div class="two-col" style="align-items:start;">
+    <!-- LEFT: query panel -->
+    <div>
+      <div class="card">
+        <div class="card-head">🔍 Query the Knowledge Base</div>
+        <div class="big-search">
+          <input type="text" id="m1-query" placeholder='e.g. "Grade A basmati in October" or "tomato Karnataka kharif"' onkeydown="if(event.key==='Enter')runM1()">
+          <button class="btn btn-primary" onclick="runM1()">Search</button>
+        </div>
+        <div class="form-grid form-grid-2">
+          <div class="form-row">
+            <label>Current month (availability check)</label>
+            <select id="m1-month">
+              <option value="">— Not specified —</option>
+              <option value="1">January</option><option value="2">February</option>
+              <option value="3">March</option><option value="4">April</option>
+              <option value="5">May</option><option value="6">June</option>
+              <option value="7">July</option><option value="8">August</option>
+              <option value="9">September</option><option value="10">October</option>
+              <option value="11">November</option><option value="12">December</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Max results</label>
+            <select id="m1-topk">
+              <option value="3">Top 3</option>
+              <option value="5" selected>Top 5</option>
+              <option value="8">Top 8</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:4px;margin-bottom:14px;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Quick queries</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            <span class="chip" style="cursor:pointer" onclick="quickQ(this)">Grade A basmati October</span>
+            <span class="chip" style="cursor:pointer" onclick="quickQ(this)">tomato January sourcing</span>
+            <span class="chip" style="cursor:pointer" onclick="quickQ(this)">Karnataka best kharif crop</span>
+            <span class="chip" style="cursor:pointer" onclick="quickQ(this)">premium Nagpur orange winter</span>
+            <span class="chip" style="cursor:pointer" onclick="quickQ(this)">wheat Punjab rabi surplus</span>
+            <span class="chip" style="cursor:pointer" onclick="quickQ(this)">mango summer Maharashtra</span>
+          </div>
+        </div>
+
+        <div id="m1-ai" class="ai-block" style="display:none;">
+          <div class="ai-label">AI Synthesis</div>
+          <div class="ai-text ai-spin" id="m1-ai-text">Generating…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: results -->
+    <div id="m1-results">
+      <div class="card"><div class="placeholder"><div class="ico">🗺️</div>Enter a query to search the crop-state knowledge base</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODEL 2 — PRODUCTION FORECAST
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-m2">
+  <div class="pg-head">
+    <div class="pg-head-text">
+      <span class="pg-model-tag">Model 2 · LSTM time-series (PyTorch) · Weighted linear trend fallback · 80% CI</span>
+      <h2>Yearly Production Forecasting</h2>
+      <p>Predict crop production (metric tonnes) for a given state-crop pair up to 2 seasons ahead, with confidence intervals and qualitative risk notes.</p>
+    </div>
+  </div>
+
+  <div class="two-col" style="align-items:start;">
+    <div class="card">
+      <div class="card-head">📊 Configure Forecast</div>
+      <div class="form-grid form-grid-2">
+        <div class="form-row">
+          <label>Crop</label>
+          <select id="m2-crop" onchange="updateM2State()">
+            <option value="wheat">Wheat</option>
+            <option value="tomato">Tomato</option>
+            <option value="rice">Rice</option>
+            <option value="soybean">Soybean</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>State</label>
+          <select id="m2-state">
+            <option value="Punjab">Punjab</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Target Year</label>
+        <select id="m2-year">
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+        </select>
+      </div>
+      <hr class="divider">
+      <div style="font-size:11px;font-weight:600;color:var(--charcoal);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;">Override Environmental Inputs (optional)</div>
+      <div class="form-row">
+        <label>Rainfall forecast (mm) — leave at 0 to use last-year actuals</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="range" id="m2-rain" min="0" max="1800" value="0" step="10" oninput="document.getElementById('m2-rain-v').textContent=this.value=='0'?'Auto':this.value+'mm'">
+          <span class="val-badge" id="m2-rain-v">Auto</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Temperature anomaly (°C) — positive = warmer than normal</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="range" id="m2-temp" min="-20" max="30" value="0" step="1" oninput="document.getElementById('m2-temp-v').textContent=this.value==0?'Auto':(this.value>0?'+':'')+this.value+'°C'">
+          <span class="val-badge" id="m2-temp-v">Auto</span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="runM2()" style="margin-top:4px;">Run Forecast</button>
+    </div>
+
+    <div id="m2-results">
+      <div class="card"><div class="placeholder"><div class="ico">📉</div>Select a crop-state pair and click Run Forecast</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODEL 3 — SURPLUS & DEFICIT
+══════════════════════════════════════════════════════ -->
+<div class="page" id="page-m3">
+  <div class="pg-head">
+    <div class="pg-head-text">
+      <span class="pg-model-tag">Model 3 · Agro-climatic zone classification · Caloric sufficiency model · Inter-zone routing</span>
+      <h2>Surplus &amp; Deficit Prediction</h2>
+      <p>Compute zone-level food balance: Surplus/Deficit = Predicted Production − Zone Consumption Need. Triggers early procurement alerts.</p>
+    </div>
+  </div>
+
+  <div style="margin-bottom:18px;">
+    <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Select zones &amp; input production forecasts (MT)</div>
+    <div class="zone-grid" id="m3-zone-grid"></div>
+  </div>
+
+  <div id="m3-config" style="display:none;" class="card" style="margin-bottom:20px;">
+    <div class="card-head" id="m3-zone-title">Zone Configuration</div>
+    <div id="m3-crop-inputs"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="btn btn-primary" onclick="runM3Zone()">Compute Balance</button>
+      <button class="btn btn-ghost" onclick="closeM3Config()">Close</button>
+    </div>
+  </div>
+
+  <div id="m3-results"></div>
+</div>
+
+</div><!-- end shell -->
+
+<script>
+// ════════════════════════════════════════════════
+// KNOWLEDGE BASE (from model1_crop_knowledge.py)
+// ════════════════════════════════════════════════
+const CROP_STATE_KNOWLEDGE = [
+  {crop:"basmati rice",state:"Punjab",grade:"A",season:"kharif",peak_months:[10,11],note:"Best aromatic long-grain basmati; APMC Amritsar hub"},
+  {crop:"basmati rice",state:"Haryana",grade:"A",season:"kharif",peak_months:[10,11],note:"Karnal basmati is GI-tagged"},
+  {crop:"wheat",state:"Punjab",grade:"A",season:"rabi",peak_months:[4,5],note:"Highest wheat yield per hectare in India"},
+  {crop:"wheat",state:"Haryana",grade:"A",season:"rabi",peak_months:[4,5],note:"Bhiwani and Sirsa surplus zones"},
+  {crop:"wheat",state:"Uttar Pradesh",grade:"B",season:"rabi",peak_months:[4,5],note:"Large volume; moderate grade"},
+  {crop:"orange",state:"Maharashtra",grade:"A",season:"winter",peak_months:[11,12,1],note:"Nagpur mandarin; GI-tagged"},
+  {crop:"sugarcane",state:"Maharashtra",grade:"A",season:"annual",peak_months:[1,2,3],note:"Kolhapur and Pune belt"},
+  {crop:"sugarcane",state:"Uttar Pradesh",grade:"A",season:"annual",peak_months:[11,12,1],note:"Largest sugarcane state by volume"},
+  {crop:"rice",state:"West Bengal",grade:"A",season:"kharif",peak_months:[11,12],note:"Gobindobhog aromatic variety"},
+  {crop:"rice",state:"Andhra Pradesh",grade:"A",season:"kharif",peak_months:[11,12],note:"East Godavari district"},
+  {crop:"tomato",state:"Andhra Pradesh",grade:"A",season:"rabi",peak_months:[1,2,3],note:"Madanapalle cluster; major supplier"},
+  {crop:"tomato",state:"Karnataka",grade:"A",season:"kharif",peak_months:[10,11],note:"Kolar and Chikkaballapur districts"},
+  {crop:"tomato",state:"Maharashtra",grade:"B",season:"kharif",peak_months:[9,10],note:"Nashik belt"},
+  {crop:"banana",state:"Maharashtra",grade:"A",season:"annual",peak_months:[1,2,3,4],note:"Jalgaon G9 variety; premium export"},
+  {crop:"banana",state:"Tamil Nadu",grade:"A",season:"annual",peak_months:[6,7,8],note:"Trichy and Thanjavur belt"},
+  {crop:"onion",state:"Maharashtra",grade:"A",season:"rabi",peak_months:[3,4,5],note:"Nashik; India's largest onion market"},
+  {crop:"onion",state:"Karnataka",grade:"B",season:"kharif",peak_months:[10,11],note:"Hubli-Dharwad belt"},
+  {crop:"potato",state:"Uttar Pradesh",grade:"A",season:"rabi",peak_months:[1,2,3],note:"Agra-Mathura cold-chain corridor"},
+  {crop:"potato",state:"West Bengal",grade:"A",season:"rabi",peak_months:[2,3],note:"Hooghly and Bardhaman districts"},
+  {crop:"cotton",state:"Gujarat",grade:"A",season:"kharif",peak_months:[10,11,12],note:"Bt cotton; Saurashtra belt"},
+  {crop:"soybean",state:"Maharashtra",grade:"A",season:"kharif",peak_months:[10,11],note:"Vidarbha region"},
+  {crop:"soybean",state:"Madhya Pradesh",grade:"A",season:"kharif",peak_months:[10,11],note:"Malwa plateau; largest soy state"},
+  {crop:"chilli",state:"Andhra Pradesh",grade:"A",season:"rabi",peak_months:[2,3,4],note:"Guntur; world's largest chilli market"},
+  {crop:"groundnut",state:"Gujarat",grade:"A",season:"kharif",peak_months:[10,11],note:"Junagadh and Rajkot districts"},
+  {crop:"mustard",state:"Rajasthan",grade:"A",season:"rabi",peak_months:[3,4],note:"Alwar and Bharatpur zones"},
+  {crop:"apple",state:"Himachal Pradesh",grade:"A",season:"summer",peak_months:[8,9,10],note:"Shimla and Kullu valleys"},
+  {crop:"mango",state:"Uttar Pradesh",grade:"A",season:"summer",peak_months:[5,6,7],note:"Dasheri and Langra; Lucknow-Varanasi belt"},
+  {crop:"mango",state:"Maharashtra",grade:"A",season:"summer",peak_months:[4,5,6],note:"Alphonso (Hapus); Ratnagiri GI-tagged"},
+  {crop:"grapes",state:"Maharashtra",grade:"A",season:"winter",peak_months:[1,2,3],note:"Nashik; largest grape export region"},
+  {crop:"turmeric",state:"Telangana",grade:"A",season:"rabi",peak_months:[1,2,3],note:"Nizamabad; highest curcumin content"},
+];
+const GRADE_SCORE = {A:3,B:2,C:1};
+const SEASON_KW = {
+  kharif:["monsoon","rainy","june","july","august","september","kharif"],
+  rabi:["winter","rabi","october","november","december","january","february","march"],
+  summer:["summer","april","may","june"],
+  annual:["annual","year-round","all year"],
+  winter:["winter","cold","november","december","january"],
+};
+const MONTH_NAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function kwScore(r, ql, month) {
+  let s = 0;
+  if(ql.includes(r.crop)) s += 3;
+  else r.crop.split(' ').forEach(w=>{ if(ql.includes(w)) s += 1; });
+  if(ql.includes(r.state.toLowerCase())) s += 2;
+  for(const [sn, kws] of Object.entries(SEASON_KW)) {
+    if(sn === r.season) { for(const kw of kws) { if(ql.includes(kw)){s+=1.5;break;} } }
+  }
+  if(month && r.peak_months.includes(parseInt(month))) s += 2;
+  if(ql.includes('grade a')||ql.includes('best')||ql.includes('premium')) s += GRADE_SCORE[r.grade]*0.5;
+  return s;
+}
+
+function runM1() {
+  const q = document.getElementById('m1-query').value.trim();
+  if(!q) return;
+  const month = document.getElementById('m1-month').value;
+  const topk = parseInt(document.getElementById('m1-topk').value);
+  const ql = q.toLowerCase();
+
+  const scored = CROP_STATE_KNOWLEDGE
+    .map(r => ({...r, score: kwScore(r,ql,month)}))
+    .filter(r => r.score > 0)
+    .sort((a,b) => b.score - a.score)
+    .slice(0, topk);
+
+  const seen = {};
+  const final = [];
+  for(const r of scored) {
+    const k = r.crop+'|'+r.state;
+    if(!seen[k]) { seen[k]=true; final.push(r); }
+  }
+
+  const confidence = final.length ? Math.min(final[0].score/10, 1) : 0;
+  renderM1Results(q, final, confidence, month);
+  getM1AI(q, final, month);
+}
+
+function quickQ(el) {
+  document.getElementById('m1-query').value = el.textContent;
+  runM1();
+}
+
+function renderM1Results(q, matches, conf, month) {
+  const confPct = Math.round(conf*100);
+  const circumference = 2*Math.PI*22;
+  const dash = circumference*(1-conf);
+
+  let rows = matches.length ? matches.map(m => {
+    const avail = month && m.peak_months.includes(parseInt(month));
+    const pills = m.peak_months.map(p => `<span class="month-pill ${avail&&p==month?'month-active':'month-inactive'}">${MONTH_NAMES[p-1]}</span>`).join(' ');
+    const scorePct = Math.min(m.score/10*100,100);
+    return `<tr>
+      <td><b>${m.crop.replace(/\b\w/g,c=>c.toUpperCase())}</b></td>
+      <td>${m.state}</td>
+      <td><span class="grade-${m.grade}">${m.grade}</span></td>
+      <td><span class="chip">${m.season}</span></td>
+      <td style="line-height:1.8;">${pills}</td>
+      <td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:${scorePct}%"></div></div><span class="mono" style="font-size:11px">${m.score.toFixed(1)}</span></div></td>
+      <td style="font-size:12px;color:var(--muted);max-width:200px">${m.note}</td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No matches found for this query. Try broader terms.</td></tr>`;
+
+  document.getElementById('m1-results').innerHTML = `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+        <div class="conf-ring">
+          <svg width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="22" fill="none" stroke="var(--border)" stroke-width="4"/>
+            <circle cx="28" cy="28" r="22" fill="none" stroke="var(--terra)" stroke-width="4"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${dash}" stroke-linecap="round"/>
+          </svg>
+          <div class="conf-num">${confPct}%</div>
+        </div>
+        <div>
+          <div style="font-weight:600;font-size:14px;color:var(--forest)">${matches.length} result${matches.length!==1?'s':''} for "${q}"</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Retrieval confidence ${confPct}% · Keyword scoring stage</div>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="rtable">
+          <thead><tr><th>Crop</th><th>State</th><th>Grade</th><th>Season</th><th>Peak months</th><th>Score</th><th>Note</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+async function getM1AI(q, matches, month) {
+  const box = document.getElementById('m1-ai');
+  const txt = document.getElementById('m1-ai-text');
+  box.style.display = 'block';
+  txt.textContent = 'Generating synthesis…';
+  txt.className = 'ai-text ai-spin';
+
+  const top = matches.slice(0,3);
+  const prompt = `You are a senior agricultural procurement advisor in India. Answer this query concisely in 2-3 sentences based on these results.
+
+Query: "${q}"
+${month?`Current month: ${MONTH_NAMES[month-1]}`:''}
+
+Top results:
+${top.map(m=>`- ${m.crop} from ${m.state}, Grade ${m.grade}, ${m.season} season, peak: ${m.peak_months.map(p=>MONTH_NAMES[p-1]).join('/')}. ${m.note}`).join('\n')}
+
+Give a direct, practical sourcing recommendation. Mention state names, grade, and availability. If the month is relevant, say whether the crop is currently in peak harvest.`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,messages:[{role:'user',content:prompt}]})});
+    const d = await r.json();
+    txt.textContent = d.content?.[0]?.text || 'No advisory available.';
+    txt.className = 'ai-text';
+  } catch(e) {
+    txt.textContent = 'Advisory unavailable.';
+    txt.className = 'ai-text';
+  }
+}
+
+// ════════════════════════════════════════════════
+// MODEL 2 — PRODUCTION FORECASTER
+// ════════════════════════════════════════════════
+const HIST = {
+  wheat_Punjab:{years:[2018,2019,2020,2021,2022,2023],production_mt:[17200,17450,17800,18100,17950,18400],rainfall_mm:[620,590,640,580,650,610],temp_anomaly:[0.2,0.4,0.1,0.6,-0.1,0.3],irrigated_pct:[98,98,99,99,99,99],msp_per_qt:[1735,1840,1925,1975,2015,2125],area_ha:[3520,3510,3530,3550,3540,3560]},
+  tomato_AndhraPradesh:{years:[2018,2019,2020,2021,2022,2023],production_mt:[1820,2100,1950,2300,2150,2450],rainfall_mm:[910,780,850,920,760,890],temp_anomaly:[0.3,0.8,0.4,0.2,1.1,0.5],irrigated_pct:[65,68,70,72,74,75],msp_per_qt:[0,0,0,0,0,0],area_ha:[155,170,163,185,178,195]},
+  rice_WestBengal:{years:[2018,2019,2020,2021,2022,2023],production_mt:[15800,15600,16100,15900,16400,16200],rainfall_mm:[1480,1520,1390,1600,1430,1510],temp_anomaly:[0.4,0.2,0.7,0.3,0.9,0.5],irrigated_pct:[55,57,58,60,61,62],msp_per_qt:[1550,1815,1868,1940,2040,2183],area_ha:[5800,5750,5820,5790,5840,5810]},
+  soybean_MadhyaPradesh:{years:[2018,2019,2020,2021,2022,2023],production_mt:[5200,4800,5600,5100,5900,5700],rainfall_mm:[980,870,1020,950,1050,990],temp_anomaly:[0.5,1.2,0.3,0.8,0.2,0.6],irrigated_pct:[22,23,24,25,26,27],msp_per_qt:[3399,3710,3880,3950,4300,4600],area_ha:[5100,4950,5300,5200,5450,5380]},
+};
+const CROP_STATE_MAP = {wheat:['Punjab'],tomato:['Andhra Pradesh'],rice:['West Bengal'],soybean:['Madhya Pradesh']};
+const FEATURE_COLS = ['production_mt','rainfall_mm','temp_anomaly','irrigated_pct','msp_per_qt','area_ha'];
+
+function updateM2State(){
+  const crop = document.getElementById('m2-crop').value;
+  const sel = document.getElementById('m2-state');
+  sel.innerHTML = '';
+  (CROP_STATE_MAP[crop]||[]).forEach(s=>{ const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o); });
+}
+
+function mean(arr){return arr.reduce((a,b)=>a+b,0)/arr.length;}
+function std(arr){const m=mean(arr);return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length)+1e-8;}
+
+function fitLinear(data){
+  const y = data.production_mt;
+  const T = y.length;
+  const t = Array.from({length:T},(_,i)=>i);
+  const wts = t.map(i=>Math.exp(0.3*i));
+  const wsum = wts.reduce((a,b)=>a+b,0);
+  const wts_n = wts.map(w=>w/wsum);
+  const wMt = wts_n.reduce((a,ti,i)=>a+ti*t[i],0);
+  const wMy = wts_n.reduce((a,ti,i)=>a+ti*y[i],0);
+  const num = wts_n.reduce((a,ti,i)=>a+ti*(t[i]-wMt)*(y[i]-wMy),0);
+  const den = wts_n.reduce((a,ti,i)=>a+ti*(t[i]-wMt)**2,0)+1e-8;
+  const slope = num/den;
+  const intercept = wMy - slope*wMt;
+  const pred = slope*T + intercept;
+  const residuals = y.map((yi,i)=>yi-(slope*i+intercept));
+  const ciHalf = 1.28 * std(residuals);
+  return {pred, ciHalf, slope};
+}
+
+function runM2(){
+  const crop = document.getElementById('m2-crop').value;
+  const stateRaw = document.getElementById('m2-state').value;
+  const state = stateRaw.replace(/ /g,'');
+  const year = parseInt(document.getElementById('m2-year').value);
+  const rainVal = parseInt(document.getElementById('m2-rain').value);
+  const tempVal = parseInt(document.getElementById('m2-temp').value);
+  const rain = rainVal === 0 ? null : rainVal;
+  const temp = tempVal === 0 ? null : tempVal;
+
+  const key = `${crop}_${state}`;
+  const data = HIST[key];
+  if(!data){ document.getElementById('m2-results').innerHTML=`<div class="card"><div class="placeholder"><div class="ico">⚠️</div>No historical data for ${crop} in ${stateRaw}. Supported pairs: wheat/Punjab, tomato/AP, rice/WB, soybean/MP.</div></div>`; return; }
+
+  const {pred, ciHalf, slope} = fitLinear(data);
+  const lastActual = data.production_mt[data.production_mt.length-1];
+  const yoy = (pred-lastActual)/lastActual*100;
+
+  // Qualitative note
+  let notes = [];
+  if(yoy>10) notes.push(`Strong production growth expected (${yoy>0?'+':''}${yoy.toFixed(1)}% YoY).`);
+  else if(yoy<-10) notes.push(`Production decline expected (${yoy.toFixed(1)}% YoY) — consider early procurement.`);
+  else notes.push(`Stable production expected (${yoy>0?'+':''}${yoy.toFixed(1)}% YoY).`);
+  if(rain!==null){ if(rain>1200) notes.push('High rainfall forecast — watch for waterlogging risk.'); else if(rain<600) notes.push('Below-normal rainfall forecast — irrigation dependency rises.'); }
+  if(temp!==null && temp>1.0) notes.push('Above-normal temperature anomaly — heat stress risk during flowering.');
+
+  renderM2(crop, stateRaw, year, pred, ciHalf, yoy, data, notes.join(' '), rain, temp);
+  getM2AI(crop, stateRaw, year, pred, ciHalf, yoy, rain, temp, notes.join(' '));
+}
+
+function renderM2(crop, state, year, pred, ciHalf, yoy, data, note, rain, temp){
+  const lower = pred - ciHalf;
+  const upper = pred + ciHalf;
+  const allVals = [...data.production_mt, pred];
+  const maxV = Math.max(...allVals)*1.1;
+  const fmtN = n => n>=1000 ? (n/1000).toFixed(1)+'K' : Math.round(n).toString();
+  const histBars = data.production_mt.map((v,i) => {
+    const h = Math.round((v/maxV)*100);
+    return `<div class="cbar-col"><div class="cbar" style="height:${h}%;background:var(--border)"><span class="cbar-lbl">${data.years[i]}</span></div></div>`;
+  }).join('');
+  const predH = Math.round((pred/maxV)*100);
+  const yoyColor = yoy>0?'var(--leaf)':yoy<-5?'var(--red)':'var(--amber)';
+
+  document.getElementById('m2-results').innerHTML = `
+    <div class="card">
+      <div class="card-head">📈 Forecast: ${crop.charAt(0).toUpperCase()+crop.slice(1)} · ${state} · ${year}</div>
+      <div class="stat-grid stat-grid-3" style="margin-bottom:14px;">
+        <div class="stat-tile"><div class="num" style="font-size:22px">${fmtN(pred)} MT</div><div class="lbl">Predicted production</div></div>
+        <div class="stat-tile ${yoy>5?'green':yoy<-5?'red':'amber'}"><div class="num" style="font-size:22px">${yoy>0?'+':''}${yoy.toFixed(1)}%</div><div class="lbl">YoY change</div></div>
+        <div class="stat-tile blue"><div class="num" style="font-size:18px">[${fmtN(lower)}, ${fmtN(upper)}]</div><div class="lbl">80% confidence interval</div></div>
+      </div>
+
+      <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Historical + forecast (MT)</div>
+      <div class="chart-wrap">
+        <div class="chart-bars">
+          ${histBars}
+          <div class="cbar-col">
+            <div class="cbar" style="height:${predH}%;background:var(--terra);border:2px solid var(--terra-light)">
+              <span class="cbar-lbl" style="color:var(--terra);font-weight:600">${year}*</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ci-box" style="margin-top:28px;">80% CI: ${fmtN(lower)} – ${fmtN(upper)} MT &nbsp;·&nbsp; * = forecast using weighted linear trend (LSTM fallback)</div>
+
+      ${rain||temp ? `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">${rain?`<span class="chip">💧 Override rainfall: ${rain}mm</span>`:''}${temp?`<span class="chip">🌡️ Temp anomaly: ${temp>0?'+':''}${temp}°C</span>`:''}</div>` : ''}
+
+      <div style="background:var(--parchment);border-radius:8px;padding:12px;margin-top:14px;font-size:13px;line-height:1.7;border-left:3px solid ${yoy>5?'var(--leaf)':yoy<-5?'var(--red)':'var(--amber)'}">
+        <b>Model note:</b> ${note}
+      </div>
+
+      <div class="ai-block" id="m2-ai">
+        <div class="ai-label">AI Forecast Briefing</div>
+        <div class="ai-text ai-spin" id="m2-ai-text">Generating…</div>
+      </div>
+    </div>`;
+}
+
+async function getM2AI(crop, state, year, pred, ciHalf, yoy, rain, temp, note){
+  const prompt = `You are an agricultural economist in India. Give a 2-3 sentence market briefing for a procurement team.
+
+Forecast:
+- Crop: ${crop}, State: ${state}, Year: ${year}
+- Predicted production: ${Math.round(pred).toLocaleString()} MT (80% CI: ${Math.round(pred-ciHalf).toLocaleString()} – ${Math.round(pred+ciHalf).toLocaleString()} MT)
+- YoY change: ${yoy>0?'+':''}${yoy.toFixed(1)}%
+- ${rain ? `Rainfall override: ${rain}mm` : 'Rainfall: historical baseline'}
+- ${temp ? `Temp anomaly: +${temp}°C` : 'Temperature: normal'}
+- Model note: ${note}
+
+Be direct and practical. Mention implications for procurement, pricing, or storage. Reference India-specific market context (MSP, mandi prices, export). No bullet points.`;
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,messages:[{role:'user',content:prompt}]})});
+    const d = await r.json();
+    document.getElementById('m2-ai-text').textContent = d.content?.[0]?.text || 'Briefing unavailable.';
+    document.getElementById('m2-ai-text').className = 'ai-text';
+  } catch(e) { document.getElementById('m2-ai-text').textContent='Briefing unavailable.'; document.getElementById('m2-ai-text').className='ai-text'; }
+}
+
+// ════════════════════════════════════════════════
+// MODEL 3 — SURPLUS / DEFICIT
+// ════════════════════════════════════════════════
+const ZONES = {
+  1:{id:1,name:"Western Himalayas",states:["J&K","Himachal Pradesh","Uttarakhand"],pop:26,key_crops:["apple","wheat","maize"]},
+  2:{id:2,name:"Eastern Himalayas",states:["Assam","Meghalaya","Arunachal Pradesh","Nagaland","Manipur"],pop:52,key_crops:["rice","tea","ginger"]},
+  3:{id:3,name:"Lower Gangetic Plain",states:["West Bengal","Bihar"],pop:154,key_crops:["rice","jute","potato"]},
+  4:{id:4,name:"Middle Gangetic Plain",states:["Uttar Pradesh (East)","Jharkhand"],pop:110,key_crops:["rice","wheat","maize"]},
+  5:{id:5,name:"Upper Gangetic Plain",states:["Uttar Pradesh (West)","Haryana","Delhi"],pop:105,key_crops:["wheat","sugarcane","potato"]},
+  6:{id:6,name:"Trans-Gangetic Plain",states:["Punjab","Chandigarh","Haryana (NW)"],pop:32,key_crops:["wheat","basmati rice","cotton"]},
+  7:{id:7,name:"Eastern Plateau & Hills",states:["Chhattisgarh","Odisha","Jharkhand (W)"],pop:72,key_crops:["rice","pulses","minor millets"]},
+  8:{id:8,name:"Central Plateau & Hills",states:["Madhya Pradesh","Rajasthan (SE)"],pop:90,key_crops:["soybean","wheat","gram"]},
+  9:{id:9,name:"Western Plateau & Hills",states:["Maharashtra","Telangana"],pop:154,key_crops:["cotton","sugarcane","soybean","onion"]},
+  10:{id:10,name:"Southern Plateau & Hills",states:["Karnataka","Tamil Nadu (N)"],pop:98,key_crops:["ragi","rice","groundnut"]},
+  11:{id:11,name:"East Coast Plains",states:["Andhra Pradesh","Odisha (coast)"],pop:60,key_crops:["rice","tobacco","chilli"]},
+  12:{id:12,name:"West Coast & Ghats",states:["Kerala","Goa","Karnataka (coast)"],pop:40,key_crops:["coconut","banana","pepper"]},
+  13:{id:13,name:"Gujarat Plains",states:["Gujarat"],pop:63,key_crops:["cotton","groundnut","castor"]},
+  14:{id:14,name:"Western Dry Region",states:["Rajasthan (W)","Gujarat (Kutch)"],pop:30,key_crops:["bajra","moth bean","mustard"]},
+  15:{id:15,name:"Islands",states:["Andaman & Nicobar","Lakshadweep"],pop:0.5,key_crops:["coconut","rice"]},
+};
+const KCAL_PER_KG = {wheat:3400,rice:3600,"basmati rice":3600,maize:3600,sorghum:3290,bajra:3610,gram:3630,soybean:4460,potato:770,tomato:180,onion:400,sugarcane:270,cotton:0,groundnut:5670,mustard:5000,banana:890,apple:520,orange:470,mango:600,grapes:690,chilli:400,turmeric:350};
+const DIET_SHARE = {wheat:.22,rice:.30,pulses:.08,vegetables:.05,fruits:.03,oilseeds:.07,others:.25};
+const CROP_DIET_CAT = {wheat:"wheat","basmati rice":"rice",rice:"rice",gram:"pulses",soybean:"oilseeds",groundnut:"oilseeds",mustard:"oilseeds",potato:"vegetables",tomato:"vegetables",onion:"vegetables",banana:"fruits",mango:"fruits",apple:"fruits",orange:"fruits",grapes:"fruits"};
+
+function zoneAnnualKcalBn(zone){return zone.pop*1e6*2100*365/1e9;}
+function cropNeedMT(zone,crop){
+  const cat=CROP_DIET_CAT[crop.toLowerCase()]||'others';
+  const ds=DIET_SHARE[cat]||0.05;
+  const kcalNeed=zoneAnnualKcalBn(zone)*1e9*ds;
+  const kpk=KCAL_PER_KG[crop.toLowerCase()]||2000;
+  return kcalNeed/(kpk*1000);
+}
+function alertLevel(pct){
+  if(pct<=-20)return'critical';
+  if(pct<=-5)return'warning';
+  if(pct>=10)return'surplus';
+  return'stable';
+}
+function alertOverall(suf){
+  if(suf<80)return'critical';
+  if(suf<95)return'warning';
+  if(suf>115)return'surplus';
+  return'stable';
+}
+const DONOR_MAP={3:"Zone 6 (Trans-Gangetic)",4:"Zone 6 or Zone 8",7:"Zone 11 (East Coast)",9:"Zone 8 or Zone 13",10:"Zone 11 or Zone 6",12:"Zone 10 or Zone 13",14:"Zone 6 or Zone 13"};
+
+// Default productions for demo
+const DEFAULT_PROD = {
+  6:{wheat:18400,"basmati rice":4800},
+  3:{rice:14200,potato:7800},
+  9:{onion:4200,tomato:1800,sugarcane:98000},
+  5:{wheat:16500,sugarcane:45000,potato:9200},
+  8:{soybean:5700,wheat:4100,gram:2800},
+};
+
+let selectedZone = null;
+let computedZones = {};
+
+function buildZoneGrid(){
+  const grid = document.getElementById('m3-zone-grid');
+  grid.innerHTML='';
+  Object.values(ZONES).forEach(z=>{
+    const hasData = !!DEFAULT_PROD[z.id];
+    const div=document.createElement('div');
+    div.className='zone-tile'+(hasData?' stable':'');
+    div.id='ztile-'+z.id;
+    div.onclick=()=>selectZone(z.id);
+    const sufPct=computedZones[z.id]?computedZones[z.id].suf:null;
+    const al=computedZones[z.id]?computedZones[z.id].alert:(hasData?'stable':'');
+    div.className='zone-tile'+(al?' '+al:'');
+    div.innerHTML=`
+      <div class="zone-id">Zone ${z.id}</div>
+      <div class="zone-name">${z.name}</div>
+      <div class="zone-states">${z.states.slice(0,2).join(', ')}${z.states.length>2?` +${z.states.length-2}`:''}  · ${z.pop}M pop.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="alert alert-${al||'stable'}" style="font-size:10px;padding:2px 7px;">${al||'—'}</div>
+        ${sufPct?`<span style="font-size:11px;font-family:var(--mono,monospace);color:var(--muted)">${sufPct.toFixed(0)}%</span>`:''}
+      </div>
+      ${sufPct?`<div class="suf-bar"><div class="suf-fill" style="width:${Math.min(sufPct,100)}%;background:${sufPct>=100?'var(--leaf)':sufPct>=90?'var(--amber)':'var(--red)'}"></div></div>`:''}`;
+    grid.appendChild(div);
+  });
+}
+
+function selectZone(zid){
+  selectedZone=zid;
+  const z=ZONES[zid];
+  document.getElementById('m3-config').style.display='block';
+  document.getElementById('m3-zone-title').textContent=`Zone ${zid}: ${z.name} — Production Inputs`;
+
+  // Build crop input fields
+  const def=DEFAULT_PROD[zid]||{};
+  const crops=z.key_crops;
+  const html=crops.map(c=>`
+    <div class="form-row">
+      <label>${c} (MT — predicted by Model 2)</label>
+      <input type="number" id="m3-crop-${c.replace(/ /g,'_')}" value="${def[c]||''}" placeholder="Enter predicted MT">
+    </div>`).join('');
+  document.getElementById('m3-crop-inputs').innerHTML=html;
+  document.querySelectorAll('.zone-tile').forEach(t=>t.classList.remove('selected'));
+  document.getElementById('ztile-'+zid).classList.add('selected');
+  document.getElementById('m3-config').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closeM3Config(){document.getElementById('m3-config').style.display='none';selectedZone=null;}
+
+function runM3Zone(){
+  if(!selectedZone)return;
+  const z=ZONES[selectedZone];
+  const crops=z.key_crops;
+  const prodMap={};
+  crops.forEach(c=>{
+    const v=parseFloat(document.getElementById('m3-crop-'+c.replace(/ /g,'_')).value)||0;
+    if(v>0)prodMap[c]=v;
+  });
+  if(!Object.keys(prodMap).length){alert('Enter at least one production figure.');return;}
+
+  // Compute balance
+  const calNeed=zoneAnnualKcalBn(z);
+  let totalCalProd=0;
+  const balances=[];
+  for(const [crop,prod] of Object.entries(prodMap)){
+    const need=cropNeedMT(z,crop);
+    const surp=prod-need;
+    const surpPct=need>0?(surp/need*100):0;
+    const calBn=(prod*1000*(KCAL_PER_KG[crop.toLowerCase()]||2000))/1e9;
+    totalCalProd+=calBn;
+    balances.push({crop,prod,need,surp,surpPct,calBn,alert:alertLevel(surpPct),rec:genRec(crop,z,surp,surpPct)});
+  }
+  const calBal=totalCalProd-calNeed;
+  const sufPct=calNeed>0?(totalCalProd/calNeed*100):0;
+  const overall=alertOverall(sufPct);
+
+  computedZones[selectedZone]={suf:sufPct,alert:overall};
+  buildZoneGrid();
+
+  renderM3Result(z, balances, calNeed, totalCalProd, calBal, sufPct, overall);
+  getM3AI(z, balances, sufPct, overall);
+}
+
+function genRec(crop,zone,surplus,surpPct){
+  if(surpPct<=-20)return`URGENT: ${zone.name} faces a ${Math.abs(surpPct).toFixed(0)}% deficit in ${crop}. Import ${Math.abs(surplus).toLocaleString(undefined,{maximumFractionDigits:0})} MT immediately.`;
+  if(surpPct<=-5)return`Procure ${Math.abs(surplus).toLocaleString(undefined,{maximumFractionDigits:0})} MT of ${crop} from external zones within 4 weeks.`;
+  if(surpPct>=10)return`${zone.name} has ${surpPct.toFixed(0)}% surplus in ${crop}. Prioritise vendor connections and export routes.`;
+  return`${crop.charAt(0).toUpperCase()+crop.slice(1)} supply stable. No immediate action needed.`;
+}
+
+function renderM3Result(z, balances, calNeed, totalCalProd, calBal, sufPct, overall){
+  const alertCls={critical:'alert-critical',warning:'alert-warning',stable:'alert-stable',surplus:'alert-surplus'};
+  const alertLabel={critical:'CRITICAL',warning:'WARNING',stable:'STABLE',surplus:'SURPLUS'};
+  const donorHint=DONOR_MAP[z.id]||'Zones 5, 6 (Trans-Gangetic belt)';
+
+  const cbRows=balances.sort((a,b)=>a.surpPct-b.surpPct).map(b=>`
+    <div class="cb-row">
+      <div class="cb-crop">${b.crop.charAt(0).toUpperCase()+b.crop.slice(1)}</div>
+      <span class="alert ${alertCls[b.alert]}">${alertLabel[b.alert]}</span>
+      <div class="cb-need">${(b.need/1000).toFixed(1)}K MT need</div>
+      <div class="cb-surplus ${b.surp>=0?'surplus-pos':'surplus-neg'}">${b.surp>=0?'+':''}${(b.surp/1000).toFixed(1)}K MT</div>
+      <div style="font-size:10px;color:var(--muted);min-width:42px;text-align:right;font-family:'IBM Plex Mono',monospace">${b.surpPct>=0?'+':''}${b.surpPct.toFixed(0)}%</div>
+    </div>`).join('');
+
+  const recItems=balances.filter(b=>b.alert!=='stable').map(b=>`
+    <div class="rec-item"><span class="rec-icon">${b.alert==='critical'?'🚨':b.alert==='warning'?'⚠️':'📤'}</span><span>${b.rec}</span></div>`).join('');
+
+  const existing=document.getElementById('m3-zone-'+z.id);
+  const card=document.createElement('div');
+  card.id='m3-zone-'+z.id;
+  card.className='card';
+  card.style.marginBottom='16px';
+  card.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Zone ${z.id}</div>
+        <div class="card-head" style="margin-bottom:0">${z.name}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${z.states.join(' · ')} &nbsp;·&nbsp; ${z.pop}M population</div>
+      </div>
+      <div style="text-align:right;">
+        <span class="alert ${alertCls[overall]}" style="font-size:12px;padding:5px 14px;">${alertLabel[overall]}</span>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px">Caloric sufficiency: <b style="color:var(--forest)">${sufPct.toFixed(1)}%</b></div>
+      </div>
+    </div>
+    <div class="stat-grid stat-grid-3" style="margin-bottom:14px;">
+      <div class="stat-tile"><div class="num" style="font-size:18px">${calNeed.toFixed(1)}</div><div class="lbl">Caloric need (bn kcal/yr)</div></div>
+      <div class="stat-tile ${calBal>=0?'green':'red'}"><div class="num" style="font-size:18px">${calBal>=0?'+':''}${calBal.toFixed(1)}</div><div class="lbl">Caloric balance (bn kcal)</div></div>
+      <div class="stat-tile ${sufPct>=100?'green':sufPct>=90?'amber':'red'}"><div class="num" style="font-size:22px">${sufPct.toFixed(0)}%</div><div class="lbl">Caloric sufficiency</div></div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Crop-level balance</div>
+      ${cbRows}
+    </div>
+    ${recItems?`<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Recommendations</div>${recItems}</div>`:''}
+    ${overall!=='stable'&&overall!=='surplus'?`<div class="rec-item" style="background:var(--parchment);border-radius:8px;padding:8px 12px;font-size:12px;"><span class="rec-icon">🔗</span><span>Recommended donor zones: <b>${donorHint}</b></span></div>`:''}
+    <div class="ai-block" id="m3-ai-${z.id}">
+      <div class="ai-label">AI Zone Briefing</div>
+      <div class="ai-text ai-spin" id="m3-ai-text-${z.id}">Generating…</div>
+    </div>`;
+
+  const results=document.getElementById('m3-results');
+  if(existing) existing.replaceWith(card);
+  else results.appendChild(card);
+}
+
+async function getM3AI(z, balances, sufPct, overall){
+  const deficits=balances.filter(b=>b.alert==='critical'||b.alert==='warning');
+  const surpluses=balances.filter(b=>b.alert==='surplus');
+  const prompt=`You are an agricultural policy analyst in India. Give a 2-3 sentence zone briefing for a procurement manager.
+
+Zone: ${z.name} (Zone ${z.id})
+States: ${z.states.join(', ')}
+Population: ${z.pop}M
+Caloric sufficiency: ${sufPct.toFixed(1)}%
+Alert level: ${overall.toUpperCase()}
+${deficits.length?`Deficits: ${deficits.map(b=>`${b.crop} (${b.surpPct.toFixed(0)}%)`).join(', ')}`:''}
+${surpluses.length?`Surpluses: ${surpluses.map(b=>`${b.crop} (+${b.surpPct.toFixed(0)}%)`).join(', ')}`:''}
+
+Be direct. Mention what action to take, which crops need procurement, and any India-specific context (NFSA, PDS, mandi, FCI). No bullet points.`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,messages:[{role:'user',content:prompt}]})});
+    const d=await r.json();
+    const el=document.getElementById('m3-ai-text-'+z.id);
+    if(el){el.textContent=d.content?.[0]?.text||'Briefing unavailable.';el.className='ai-text';}
+  }catch(e){const el=document.getElementById('m3-ai-text-'+z.id);if(el){el.textContent='Briefing unavailable.';el.className='ai-text';}}
+}
+
+// ════════════════════════════════════════════════
+// NAV + INIT
+// ════════════════════════════════════════════════
+function switchPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.hnav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+}
+
+document.getElementById('ctx-date').textContent = new Date().toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+updateM2State();
+buildZoneGrid();
+
+// Auto-run zone 6 as demo
+setTimeout(()=>{
+  selectZone(6);
+  setTimeout(runM3Zone, 200);
+}, 300);
+</script>
+</body>
+</html>

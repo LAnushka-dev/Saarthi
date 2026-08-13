@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CropGuard — Shelf-Life & Storage Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --soil: #2C1A0E;
+  --bark: #4A2C1A;
+  --clay: #8B4513;
+  --terracotta: #C4622D;
+  --amber: #E8941A;
+  --harvest: #F2C94C;
+  --sage: #4A7C59;
+  --leaf: #27AE60;
+  --mint: #A8D5B5;
+  --sky: #2980B9;
+  --cream: #FAF7F0;
+  --parchment: #F5EDD8;
+  --wheat: #E8D5A3;
+  --warm-gray: #8B7355;
+  --light-gray: #EDE8DF;
+  --red: #C0392B;
+  --orange: #E67E22;
+  --yellow: #F1C40F;
+  --green: #27AE60;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--soil);
+  min-height: 100vh;
+}
+.header {
+  background: var(--soil);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 3px solid var(--terracotta);
+}
+.logo-mark {
+  width: 42px; height: 42px;
+  background: var(--terracotta);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.header-text h1 {
+  font-family: 'DM Serif Display', serif;
+  color: var(--cream);
+  font-size: 22px;
+  letter-spacing: .3px;
+}
+.header-text p { color: var(--wheat); font-size: 12px; font-weight: 300; margin-top: 1px; }
+.impact-bar {
+  background: var(--terracotta);
+  color: var(--cream);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px;
+  letter-spacing: .5px;
+}
+.impact-bar span { opacity: .8; }
+
+.tabs {
+  display: flex;
+  gap: 0;
+  background: var(--bark);
+  padding: 0 32px;
+}
+.tab {
+  padding: 12px 20px;
+  color: var(--wheat);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.tab.active { color: var(--harvest); border-bottom-color: var(--harvest); }
+.tab:hover:not(.active) { color: var(--cream); }
+
+.content { display: none; }
+.content.active { display: block; }
+
+.main { padding: 28px 32px; max-width: 1200px; }
+
+/* ── SECTION HEADER ── */
+.section-head { margin-bottom: 20px; }
+.section-head h2 { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--bark); }
+.section-head p { color: var(--warm-gray); font-size: 13px; margin-top: 4px; }
+
+/* ── STAT CARDS ── */
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card {
+  background: white;
+  border: 1px solid var(--light-gray);
+  border-radius: 12px;
+  padding: 16px;
+  border-top: 3px solid var(--terracotta);
+}
+.stat-card .num { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--soil); }
+.stat-card .lbl { font-size: 11px; color: var(--warm-gray); margin-top: 2px; text-transform: uppercase; letter-spacing: .5px; }
+
+/* ── SEARCH / FILTER ── */
+.toolbar {
+  display: flex; gap: 10px; margin-bottom: 16px; align-items: center;
+}
+.search-box {
+  flex: 1;
+  padding: 9px 14px;
+  border: 1px solid var(--light-gray);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  background: white;
+  color: var(--soil);
+  outline: none;
+}
+.search-box:focus { border-color: var(--terracotta); }
+.filter-btn {
+  padding: 9px 14px;
+  border: 1px solid var(--light-gray);
+  border-radius: 8px;
+  background: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--soil);
+  cursor: pointer;
+  transition: all .15s;
+}
+.filter-btn:hover, .filter-btn.on { background: var(--parchment); border-color: var(--clay); color: var(--clay); }
+
+/* ── CROP TABLE ── */
+.crop-table-wrap { background: white; border-radius: 12px; border: 1px solid var(--light-gray); overflow: hidden; }
+.crop-table { width: 100%; border-collapse: collapse; }
+.crop-table thead { background: var(--bark); }
+.crop-table th { padding: 12px 14px; text-align: left; font-size: 11px; font-weight: 600; color: var(--wheat); text-transform: uppercase; letter-spacing: .6px; }
+.crop-table td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid var(--light-gray); vertical-align: middle; }
+.crop-table tr:last-child td { border-bottom: none; }
+.crop-table tr:hover td { background: var(--cream); }
+.crop-name { font-weight: 600; color: var(--soil); display: flex; align-items: center; gap: 8px; }
+.crop-icon { font-size: 20px; }
+.shelf-bar { display: flex; align-items: center; gap: 8px; }
+.shelf-track { width: 80px; height: 6px; background: var(--light-gray); border-radius: 3px; overflow: hidden; }
+.shelf-fill { height: 100%; border-radius: 3px; }
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .4px;
+}
+.badge-low { background: #D5F5E3; color: #1E8449; }
+.badge-med { background: #FEF9C3; color: #B7770D; }
+.badge-high { background: #FADBD8; color: #922B21; }
+.badge-crit { background: #C0392B; color: white; }
+
+.truck-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 500;
+  background: var(--parchment); color: var(--bark); border: 1px solid var(--wheat);
+}
+.truck-pill.refrig { background: #D6EAF8; color: #1A5276; border-color: #AED6F1; }
+.truck-pill.vent { background: #D5F5E3; color: #1E6634; border-color: #82E0AA; }
+.truck-pill.dry { background: #FEF9C3; color: #7D6608; border-color: #F9E79F; }
+.truck-pill.insul { background: #F9EBEA; color: #922B21; border-color: #F1948A; }
+
+/* ── RISK CALCULATOR ── */
+.calc-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 20px; }
+.calc-form {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--light-gray);
+  padding: 22px;
+}
+.form-row { margin-bottom: 16px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--bark); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; display: block; }
+.form-select, .form-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--light-gray);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  background: var(--cream);
+  color: var(--soil);
+  outline: none;
+  appearance: none;
+}
+.form-select:focus, .form-input:focus { border-color: var(--terracotta); background: white; }
+.slider-wrap { display: flex; align-items: center; gap: 10px; }
+.form-slider { flex: 1; accent-color: var(--terracotta); cursor: pointer; }
+.slider-val { min-width: 48px; font-weight: 600; font-size: 13px; color: var(--clay); text-align: right; }
+.calc-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--terracotta);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Serif Display', serif;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background .2s;
+  margin-top: 4px;
+}
+.calc-btn:hover { background: var(--clay); }
+
+/* ── RESULT PANEL ── */
+.result-panel {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--light-gray);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.risk-meter {
+  text-align: center;
+  padding: 20px 0 10px;
+}
+.risk-ring {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  border: 5px solid;
+  transition: all .4s;
+}
+.risk-ring.low { border-color: var(--green); color: var(--green); background: #D5F5E3; }
+.risk-ring.med { border-color: var(--orange); color: var(--orange); background: #FDEBD0; }
+.risk-ring.high { border-color: var(--red); color: var(--red); background: #FADBD8; }
+.risk-ring.crit { border-color: #7B241C; color: #7B241C; background: #F1948A; }
+.risk-label { font-size: 13px; color: var(--warm-gray); }
+.risk-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--soil); }
+
+.decision-list { list-style: none; }
+.decision-list li {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--light-gray);
+  font-size: 12px;
+  color: var(--soil);
+  line-height: 1.5;
+}
+.decision-list li:last-child { border-bottom: none; }
+.d-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+.ai-box {
+  background: var(--parchment);
+  border: 1px solid var(--wheat);
+  border-left: 3px solid var(--terracotta);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--soil);
+}
+.ai-box .ai-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--terracotta); margin-bottom: 5px; }
+.ai-spin { color: var(--warm-gray); font-size: 12px; font-style: italic; }
+
+/* ── TRUCK GUIDE ── */
+.truck-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+.truck-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--light-gray);
+  overflow: hidden;
+  transition: transform .15s;
+}
+.truck-card:hover { transform: translateY(-2px); }
+.truck-header {
+  padding: 14px 18px;
+  font-weight: 600; font-size: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.truck-header .icon { font-size: 24px; }
+.truck-body { padding: 0 18px 14px; }
+.truck-desc { font-size: 12px; color: var(--warm-gray); margin-bottom: 10px; line-height: 1.6; }
+.crop-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.crop-tag {
+  background: var(--parchment); border: 1px solid var(--wheat);
+  border-radius: 4px; padding: 3px 8px; font-size: 11px; color: var(--bark);
+}
+
+.truck-card.refrig .truck-header { background: #D6EAF8; color: #1A5276; }
+.truck-card.vent .truck-header { background: #D5F5E3; color: #1E6634; }
+.truck-card.dry .truck-header { background: #FEF9C3; color: #7D6608; }
+.truck-card.insul .truck-header { background: #F9EBEA; color: #922B21; }
+
+/* ── SPOILAGE MAP ── */
+.spoilage-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.spoil-card {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid var(--light-gray);
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.spoil-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.spoil-card.critical::before { background: var(--red); }
+.spoil-card.high::before { background: var(--orange); }
+.spoil-card.medium::before { background: var(--yellow); }
+.spoil-card.low::before { background: var(--green); }
+.spoil-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; display: flex; gap: 6px; align-items: center; }
+.spoil-meta { font-size: 11px; color: var(--warm-gray); display: flex; gap: 12px; margin-bottom: 8px; }
+.spoil-bars { display: flex; flex-direction: column; gap: 5px; }
+.spoil-bar-row { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+.spoil-bar-label { color: var(--warm-gray); width: 60px; flex-shrink: 0; }
+.spoil-track { flex: 1; height: 5px; background: var(--light-gray); border-radius: 3px; overflow: hidden; }
+.spoil-fill { height: 100%; border-radius: 3px; }
+
+/* ── EMPTY / PLACEHOLDER ── */
+.placeholder {
+  text-align: center; padding: 60px 20px;
+  color: var(--warm-gray);
+  font-size: 14px;
+}
+.placeholder .p-icon { font-size: 48px; margin-bottom: 10px; }
+
+/* Responsive */
+@media(max-width:768px){
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+  .calc-grid{grid-template-columns:1fr;}
+  .truck-grid{grid-template-columns:1fr;}
+  .spoilage-row{grid-template-columns:1fr;}
+  .tabs{overflow-x:auto;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-mark">🌾</div>
+  <div class="header-text">
+    <h1>CropGuard Intelligence</h1>
+    <p>Shelf-Life Database · Spoilage Risk Engine · Transport Advisor · AI Briefing</p>
+  </div>
+</div>
+<div class="impact-bar">
+  India loses <strong>30–40%</strong> of fruits & vegetables post-harvest due to poor storage and transport · <span>This module reduces that waste through biological intelligence</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('db')">Crop Database</div>
+  <div class="tab" onclick="switchTab('risk')">Spoilage Risk Calculator</div>
+  <div class="tab" onclick="switchTab('trucks')">Truck Guide</div>
+  <div class="tab" onclick="switchTab('spoilage')">Sensitivity Map</div>
+</div>
+
+<!-- ══════════════ TAB 1: DATABASE ══════════════ -->
+<div class="content active" id="tab-db">
+<div class="main">
+  <div class="section-head">
+    <h2>Crop Shelf-Life Database</h2>
+    <p>Biological characteristics of 20 common Indian crops — temperature ranges, humidity, shelf life, and transport recommendations</p>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card"><div class="num">20</div><div class="lbl">Crops catalogued</div></div>
+    <div class="stat-card"><div class="num">4</div><div class="lbl">Transport types</div></div>
+    <div class="stat-card"><div class="num">1–2 days</div><div class="lbl">Shortest shelf life (Spinach)</div></div>
+    <div class="stat-card" style="border-top-color:var(--sage)"><div class="num">Months</div><div class="lbl">Longest shelf life (Potato)</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input class="search-box" type="text" placeholder="Search crops…" oninput="filterTable(this.value)" id="crop-search">
+    <button class="filter-btn" id="f-all" onclick="filterCat('all')" style="background:var(--parchment);border-color:var(--clay);color:var(--clay)">All</button>
+    <button class="filter-btn" id="f-veg" onclick="filterCat('vegetable')">Vegetables</button>
+    <button class="filter-btn" id="f-fruit" onclick="filterCat('fruit')">Fruits</button>
+    <button class="filter-btn" id="f-root" onclick="filterCat('root')">Root / Bulb</button>
+    <button class="filter-btn" id="f-grain" onclick="filterCat('grain')">Grains</button>
+  </div>
+
+  <div class="crop-table-wrap">
+    <table class="crop-table" id="ctable">
+      <thead>
+        <tr>
+          <th>Crop</th>
+          <th>Shelf Life</th>
+          <th>Ideal Temp</th>
+          <th>Humidity %</th>
+          <th>Spoilage Risk</th>
+          <th>Truck Type</th>
+          <th>Recommendation</th>
+        </tr>
+      </thead>
+      <tbody id="ctbody"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 2: RISK CALCULATOR ══════════════ -->
+<div class="content" id="tab-risk">
+<div class="main">
+  <div class="section-head">
+    <h2>Spoilage Risk Decision Model</h2>
+    <p>Enter shipment parameters — the model applies biological decision rules to assess spoilage risk and recommend action</p>
+  </div>
+  <div class="calc-grid">
+    <div class="calc-form">
+      <div class="form-row">
+        <label class="form-label">Crop</label>
+        <select class="form-select" id="rc-crop"></select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Travel Time (hours)</label>
+        <div class="slider-wrap">
+          <input type="range" class="form-slider" id="rc-time" min="1" max="72" value="12" oninput="document.getElementById('rc-time-v').textContent=this.value+'h'">
+          <span class="slider-val" id="rc-time-v">12h</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Ambient Temperature (°C)</label>
+        <div class="slider-wrap">
+          <input type="range" class="form-slider" id="rc-temp" min="0" max="50" value="28" oninput="document.getElementById('rc-temp-v').textContent=this.value+'°C'">
+          <span class="slider-val" id="rc-temp-v">28°C</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Ambient Humidity (%)</label>
+        <div class="slider-wrap">
+          <input type="range" class="form-slider" id="rc-hum" min="20" max="100" value="65" oninput="document.getElementById('rc-hum-v').textContent=this.value+'%'">
+          <span class="slider-val" id="rc-hum-v">65%</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Season</label>
+        <select class="form-select" id="rc-season">
+          <option value="summer">Summer (Apr–Jun)</option>
+          <option value="monsoon">Monsoon (Jul–Sep)</option>
+          <option value="post-monsoon">Post-Monsoon (Oct–Nov)</option>
+          <option value="winter" selected>Winter (Dec–Mar)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Cold Storage Available?</label>
+        <select class="form-select" id="rc-cold">
+          <option value="yes">Yes — at origin and/or destination</option>
+          <option value="partial">Partial — destination only</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+      <button class="calc-btn" onclick="calcRisk()">Assess Spoilage Risk</button>
+    </div>
+
+    <div class="result-panel" id="rresult">
+      <div class="placeholder">
+        <div class="p-icon">🔬</div>
+        <div>Fill in shipment details and click<br><strong>Assess Spoilage Risk</strong> to see results</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 3: TRUCK GUIDE ══════════════ -->
+<div class="content" id="tab-trucks">
+<div class="main">
+  <div class="section-head">
+    <h2>Crop-Based Truck Recommendation System</h2>
+    <p>Match transport type to crop biological requirements — wrong trucks cause an estimated 15% of India's post-harvest loss</p>
+  </div>
+  <div class="truck-grid" id="truck-cards"></div>
+  <div class="section-head" style="margin-top:8px">
+    <h2 style="font-size:20px">Quick Lookup</h2>
+    <p>Search any crop to instantly get its recommended truck type and loading tips</p>
+  </div>
+  <div class="toolbar">
+    <input class="search-box" type="text" placeholder="Type a crop name…" oninput="truckSearch(this.value)" id="truck-search">
+  </div>
+  <div id="truck-result"></div>
+</div>
+</div>
+
+<!-- ══════════════ TAB 4: SPOILAGE MAP ══════════════ -->
+<div class="content" id="tab-spoilage">
+<div class="main">
+  <div class="section-head">
+    <h2>Crop Sensitivity Map</h2>
+    <p>Visual breakdown of temperature sensitivity, humidity sensitivity, and overall perishability for each crop</p>
+  </div>
+  <div class="spoilage-row" id="spoilage-cards"></div>
+</div>
+</div>
+
+<script>
+const CROPS = [
+  {name:'Tomato',icon:'🍅',cat:'vegetable',shelfDays:10,shelfLabel:'7–10 days',tempMin:12,tempMax:20,humidity:'85–90%',risk:'medium',truck:'refrigerated',reco:'Quick transport — highly perishable above 20°C',
+   tempSens:65,humSens:55,perishability:70,
+   loadTips:'Single-layer stacking only. Avoid bruising. Keep away from ethylene-sensitive crops.'},
+  {name:'Mango',icon:'🥭',cat:'fruit',shelfDays:6,shelfLabel:'4–8 days',tempMin:10,tempMax:13,humidity:'90–95%',risk:'high',truck:'refrigerated',reco:'Cold storage if journey >6 hrs. Ethylene emitter — keep isolated.',
+   tempSens:80,humSens:70,perishability:82,
+   loadTips:'Ripen at room temp after cool transport. Wrap individually for premium quality.'},
+  {name:'Spinach',icon:'🥬',cat:'vegetable',shelfDays:1.5,shelfLabel:'1–2 days',tempMin:0,tempMax:4,humidity:'95–100%',risk:'critical',truck:'refrigerated',reco:'Immediate transport only. Zero delay tolerable. Pre-cool before loading.',
+   tempSens:95,humSens:85,perishability:98,
+   loadTips:'Must be pre-cooled. Keep moist. Shortest window of all leafy greens.'},
+  {name:'Potato',icon:'🥔',cat:'root',shelfDays:120,shelfLabel:'Months',tempMin:7,tempMax:10,humidity:'85–90%',risk:'low',truck:'dry',reco:'Can be stored for months. Normal dry truck suitable. Avoid frost.',
+   tempSens:15,humSens:20,perishability:10,
+   loadTips:'Avoid light exposure (causes greening). Keep in dark, ventilated storage.'},
+  {name:'Onion',icon:'🧅',cat:'root',shelfDays:60,shelfLabel:'1–3 months',tempMin:0,tempMax:10,humidity:'65–70%',risk:'low',truck:'ventilated',reco:'Low humidity essential — moisture causes rot. Ventilated truck needed.',
+   tempSens:20,humSens:80,perishability:18,
+   loadTips:'Never seal airtight. Moisture is the enemy. Use mesh bags, not sacks.'},
+  {name:'Grapes',icon:'🍇',cat:'fruit',shelfDays:14,shelfLabel:'7–14 days',tempMin:0,tempMax:2,humidity:'90–95%',risk:'high',truck:'refrigerated',reco:'Strictest cold chain required. SO₂ pads recommended for export.',
+   tempSens:90,humSens:75,perishability:88,
+   loadTips:'SO₂ pads prevent mold. Do not mix with strongly-scented produce.'},
+  {name:'Banana',icon:'🍌',cat:'fruit',shelfDays:7,shelfLabel:'5–9 days',tempMin:13,tempMax:15,humidity:'85–95%',risk:'high',truck:'insulated',reco:'Sensitive to chilling injury below 13°C. Avoid AC. Insulated truck preferred.',
+   tempSens:85,humSens:60,perishability:80,
+   loadTips:'Never refrigerate below 13°C — blackens. Insulated but not chilled transport ideal.'},
+  {name:'Wheat',icon:'🌾',cat:'grain',shelfDays:365,shelfLabel:'12+ months',tempMin:10,tempMax:25,humidity:'60–70%',risk:'low',truck:'dry',reco:'Long shelf life. Dry truck. Moisture control critical to prevent mold.',
+   tempSens:10,humSens:30,perishability:5,
+   loadTips:'Keep moisture below 12%. Check for weevils before loading. Fumigation recommended.'},
+  {name:'Cauliflower',icon:'🥦',cat:'vegetable',shelfDays:21,shelfLabel:'2–4 weeks',tempMin:0,tempMax:4,humidity:'95–98%',risk:'medium',truck:'refrigerated',reco:'Keep at near-freezing. Very high humidity needed. Mist during storage.',
+   tempSens:70,humSens:80,perishability:65,
+   loadTips:'Keep cold and moist. Browning occurs rapidly above 5°C.'},
+  {name:'Apple',icon:'🍎',cat:'fruit',shelfDays:30,shelfLabel:'1–6 months (CA)',tempMin:0,tempMax:4,humidity:'90–95%',risk:'medium',truck:'refrigerated',reco:'Controlled atmosphere extends life greatly. Regular cold chain for short routes.',
+   tempSens:55,humSens:60,perishability:45,
+   loadTips:'Ethylene emitter. Keep away from leafy greens and bananas.'},
+  {name:'Carrot',icon:'🥕',cat:'root',shelfDays:45,shelfLabel:'4–5 weeks',tempMin:0,tempMax:4,humidity:'95–100%',risk:'low',truck:'refrigerated',reco:'Refrigerate for long journeys. Moderate shelf life allows some flexibility.',
+   tempSens:40,humSens:70,perishability:30,
+   loadTips:'Remove tops before storage to prevent moisture loss. Pack in moist material.'},
+  {name:'Green Chilli',icon:'🌶️',cat:'vegetable',shelfDays:12,shelfLabel:'10–14 days',tempMin:7,tempMax:10,humidity:'90–95%',risk:'medium',truck:'refrigerated',reco:'Cold chain preferred. Chilling injury below 7°C — do not over-cool.',
+   tempSens:55,humSens:65,perishability:60,
+   loadTips:'Avoid bruising — surface lesions lead to rapid decay.'},
+  {name:'Garlic',icon:'🧄',cat:'root',shelfDays:180,shelfLabel:'3–8 months',tempMin:0,tempMax:10,humidity:'60–70%',risk:'low',truck:'ventilated',reco:'Long shelf life. Dry and ventilated storage. Avoid moisture at all costs.',
+   tempSens:15,humSens:75,perishability:12,
+   loadTips:'Cure properly before storage. Never store wet. Mesh packaging essential.'},
+  {name:'Papaya',icon:'🍈',cat:'fruit',shelfDays:7,shelfLabel:'5–8 days',tempMin:10,tempMax:13,humidity:'85–95%',risk:'high',truck:'refrigerated',reco:'Tropical fruit — sensitive to cold injury. Maintain 10–13°C precisely.',
+   tempSens:78,humSens:70,perishability:82,
+   loadTips:'Ripen at room temperature post-transport. Do not refrigerate below 10°C.'},
+  {name:'Rice',icon:'🌾',cat:'grain',shelfDays:365,shelfLabel:'12+ months',tempMin:10,tempMax:30,humidity:'60–70%',risk:'low',truck:'dry',reco:'Very robust. Dry truck. Watch for moisture and pests in monsoon.',
+   tempSens:8,humSens:25,perishability:4,
+   loadTips:'Seal against moisture during monsoon transport. Weevil prevention essential.'},
+  {name:'Strawberry',icon:'🍓',cat:'fruit',shelfDays:3,shelfLabel:'2–3 days',tempMin:0,tempMax:2,humidity:'90–95%',risk:'critical',truck:'refrigerated',reco:'Extremely perishable. Harvest-to-consumer in under 72 hrs. Pre-cooling mandatory.',
+   tempSens:92,humSens:80,perishability:96,
+   loadTips:'Pre-cool field heat immediately. Single-layer only. No pressure on berries.'},
+  {name:'Cabbage',icon:'🥬',cat:'vegetable',shelfDays:60,shelfLabel:'1–2 months',tempMin:0,tempMax:4,humidity:'90–100%',risk:'low',truck:'refrigerated',reco:'Robust leafy vegetable. Cold storage suitable for up to 2 months.',
+   tempSens:35,humSens:65,perishability:28,
+   loadTips:'Outer leaves protect the head. Remove only if damaged.'},
+  {name:'Watermelon',icon:'🍉',cat:'fruit',shelfDays:21,shelfLabel:'2–3 weeks',tempMin:10,tempMax:15,humidity:'80–90%',risk:'medium',truck:'dry',reco:'Large fruit. Normal truck fine for short routes. Cool storage for long hauls.',
+   tempSens:50,humSens:45,perishability:40,
+   loadTips:'Do not stack more than 3 layers. Chilling injury below 10°C.'},
+  {name:'Coriander',icon:'🌿',cat:'vegetable',shelfDays:2,shelfLabel:'1–2 days',tempMin:0,tempMax:4,humidity:'95–100%',risk:'critical',truck:'refrigerated',reco:'Extremely short shelf life. Harvest same-day dispatch. Cold chain essential.',
+   tempSens:90,humSens:88,perishability:95,
+   loadTips:'Mist continuously. Pack loose, never compress. Sell within 24 hrs of harvest.'},
+  {name:'Lemon',icon:'🍋',cat:'fruit',shelfDays:30,shelfLabel:'3–6 weeks',tempMin:10,tempMax:15,humidity:'85–90%',risk:'low',truck:'ventilated',reco:'Hardy citrus. Ventilated truck adequate. Avoid freezing temperatures.',
+   tempSens:30,humSens:40,perishability:25,
+   loadTips:'Wax coating extends shelf life. Store away from apples (ethylene sensitivity).'},
+];
+
+const TRUCKS = [
+  {id:'refrigerated',label:'Refrigerated Truck (Reefer)',icon:'❄️',cls:'refrig',
+   desc:'Maintains precise temperature range (0–15°C). Required for highly perishable produce. Insulated walls + active refrigeration unit. Costlier but prevents critical losses.',
+   crops:['Tomato','Mango','Grapes','Spinach','Strawberry','Cauliflower','Papaya','Carrot','Green Chilli','Apple','Coriander','Cabbage'],
+   tipIcon:'❄️', tips:'Pre-cool the truck 1 hr before loading. Monitor temperature log every 4 hrs. Never open doors unnecessarily.'},
+  {id:'ventilated',label:'Ventilated Truck',icon:'💨',cls:'vent',
+   desc:'Cross-flow ventilation prevents moisture buildup. Essential for onions, garlic and bulb crops that rot when humidity is too high. Mesh sides or roof vents.',
+   crops:['Onion','Garlic','Lemon'],
+   tipIcon:'💨',tips:'Ensure airflow is unobstructed between crates. Avoid overloading which blocks vents. Check for condensation buildup.'},
+  {id:'dry',label:'Dry / Covered Truck',icon:'📦',cls:'dry',
+   desc:'Standard insulated covered truck. Suitable for robust crops with long shelf lives. Protects from rain and direct sun. Most economical option.',
+   crops:['Potato','Wheat','Rice','Watermelon'],
+   tipIcon:'🌡️',tips:'Park in shade during loading/unloading. Line floor with jute to absorb moisture. Check for leaks during monsoon.'},
+  {id:'insulated',label:'Insulated Truck (Non-Chilled)',icon:'🌡️',cls:'insul',
+   desc:'Insulated body maintains a stable temperature without active refrigeration. Ideal for tropical fruits sensitive to chilling injury. Cost-effective middle ground.',
+   crops:['Banana'],
+   tipIcon:'🌡️',tips:'Load during cooler part of the day. Limit journey to under 8 hrs. Never use refrigeration — causes blackening in bananas.'},
+];
+
+let currentFilter = 'all';
+
+function renderTable(data) {
+  const tbody = document.getElementById('ctbody');
+  tbody.innerHTML = '';
+  data.forEach(c => {
+    const riskBadge = {low:'badge-low',medium:'badge-med',high:'badge-high',critical:'badge-crit'}[c.risk];
+    const riskLabel = {low:'Low',medium:'Medium',high:'High',critical:'Critical'}[c.risk];
+    const truckPill = {refrigerated:'refrig',ventilated:'vent',dry:'dry',insulated:'insul'}[c.truck];
+    const truckLabel = {refrigerated:'❄️ Refrigerated',ventilated:'💨 Ventilated',dry:'📦 Dry truck',insulated:'🌡️ Insulated'}[c.truck];
+    const shelfPct = Math.min(100, (c.shelfDays/120)*100);
+    const shelfColor = c.shelfDays <= 2 ? '#C0392B' : c.shelfDays <= 7 ? '#E67E22' : c.shelfDays <= 14 ? '#F1C40F' : '#27AE60';
+    tbody.innerHTML += `<tr>
+      <td><div class="crop-name"><span class="crop-icon">${c.icon}</span>${c.name}</div></td>
+      <td><div class="shelf-bar"><div class="shelf-track"><div class="shelf-fill" style="width:${shelfPct}%;background:${shelfColor}"></div></div>${c.shelfLabel}</div></td>
+      <td>${c.tempMin}–${c.tempMax}°C</td>
+      <td>${c.humidity}</td>
+      <td><span class="badge ${riskBadge}">${riskLabel}</span></td>
+      <td><span class="truck-pill ${truckPill}">${truckLabel}</span></td>
+      <td style="font-size:12px;color:var(--warm-gray)">${c.reco}</td>
+    </tr>`;
+  });
+}
+
+function filterTable(q) {
+  let data = currentFilter === 'all' ? CROPS : CROPS.filter(c=>c.cat===currentFilter);
+  if(q) data = data.filter(c=>c.name.toLowerCase().includes(q.toLowerCase()));
+  renderTable(data);
+}
+
+function filterCat(cat) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('f-'+cat).classList.add('on');
+  filterTable(document.getElementById('crop-search').value);
+}
+
+function populateRiskCrop() {
+  const sel = document.getElementById('rc-crop');
+  CROPS.forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.name; o.textContent = `${c.icon} ${c.name}`;
+    sel.appendChild(o);
+  });
+}
+
+function calcRisk() {
+  const cropName = document.getElementById('rc-crop').value;
+  const time = parseInt(document.getElementById('rc-time').value);
+  const temp = parseInt(document.getElementById('rc-temp').value);
+  const hum = parseInt(document.getElementById('rc-hum').value);
+  const season = document.getElementById('rc-season').value;
+  const cold = document.getElementById('rc-cold').value;
+  const crop = CROPS.find(c=>c.name===cropName);
+  if(!crop) return;
+
+  // Risk scoring model
+  let score = 0;
+  const decisions = [];
+  const truckPill = {refrigerated:'refrig',ventilated:'vent',dry:'dry',insulated:'insul'}[crop.truck];
+  const truckLabel = {refrigerated:'❄️ Refrigerated',ventilated:'💨 Ventilated',dry:'📦 Dry',insulated:'🌡️ Insulated'}[crop.truck];
+
+  // Time vs shelf life
+  const shelfHours = crop.shelfDays * 24;
+  const timeRatio = time / shelfHours;
+  if(timeRatio > 0.7) { score += 35; decisions.push({icon:'⏱️',text:`Journey time (${time}h) exceeds 70% of shelf life (${Math.round(shelfHours)}h). Urgent dispatch needed.`}); }
+  else if(timeRatio > 0.4) { score += 18; decisions.push({icon:'⏰',text:`Journey is ${Math.round(timeRatio*100)}% of shelf life. Monitor closely — limited margin.`}); }
+  else { score += 5; decisions.push({icon:'✅',text:`Journey time is well within shelf life window (${Math.round(timeRatio*100)}% used). Safe margin.`}); }
+
+  // Temperature vs ideal
+  if(temp > crop.tempMax + 10) { score += 30; decisions.push({icon:'🌡️',text:`Ambient temp (${temp}°C) is ${temp-crop.tempMax}°C above maximum ideal (${crop.tempMax}°C). Refrigerated transport critical.`}); }
+  else if(temp > crop.tempMax) { score += 15; decisions.push({icon:'🌡️',text:`Ambient temp (${temp}°C) slightly above ideal range (${crop.tempMin}–${crop.tempMax}°C). Recommend cooled vehicle.`}); }
+  else if(temp < crop.tempMin - 3) { score += 12; decisions.push({icon:'❄️',text:`Ambient temp (${temp}°C) below ideal minimum (${crop.tempMin}°C). Risk of chilling injury for this crop.`}); }
+  else { decisions.push({icon:'✅',text:`Ambient temperature (${temp}°C) within ideal range (${crop.tempMin}–${crop.tempMax}°C).`}); }
+
+  // Season
+  if(season==='summer') { score += 12; decisions.push({icon:'☀️',text:'Summer season: elevated ambient temperatures increase spoilage rate by ~25%. Morning dispatch recommended.'}); }
+  else if(season==='monsoon') { score += 8; decisions.push({icon:'🌧️',text:'Monsoon season: high humidity risk for fungal growth. Ensure waterproof tarping and drainage.'}); }
+
+  // Cold storage
+  if(cold==='no' && score > 20) { score += 10; decisions.push({icon:'🏚️',text:'No cold storage available — no buffer if journey is delayed. Highest risk scenario.'}); }
+  else if(cold==='yes') { score -= 10; decisions.push({icon:'🏭',text:'Cold storage available — can buffer delays. Ensures quality even if transport is interrupted.'}); }
+
+  // Humidity
+  const humStr = crop.humidity.replace('%','');
+  const [hMin, hMax] = humStr.split('–').map(Number);
+  if(hum > hMax + 10) { score += 8; decisions.push({icon:'💧',text:`Humidity (${hum}%) well above ideal (${crop.humidity}%). Mold and rot risk elevated.`}); }
+  else if(hum < hMin - 10) { score += 5; decisions.push({icon:'🏜️',text:`Humidity (${hum}%) below ideal (${crop.humidity}%). Wilting and dehydration risk.`}); }
+
+  score = Math.min(score, 100);
+  const riskLevel = score >= 75 ? 'crit' : score >= 50 ? 'high' : score >= 25 ? 'med' : 'low';
+  const riskLabel = {crit:'Critical',high:'High',med:'Moderate',low:'Low'}[riskLevel];
+
+  // Action
+  let action = '';
+  if(riskLevel==='crit') action = `<div style="background:#FADBD8;border-left:3px solid var(--red);border-radius:8px;padding:10px 12px;font-size:12px;color:#7B241C;margin-top:4px"><strong>Action Required:</strong> Do NOT transport without refrigeration. Use cold chain immediately. Consider emergency cold storage if vehicle unavailable. Loss is near-certain above current conditions.</div>`;
+  else if(riskLevel==='high') action = `<div style="background:#FDEBD0;border-left:3px solid var(--orange);border-radius:8px;padding:10px 12px;font-size:12px;color:#784212;margin-top:4px"><strong>Action:</strong> Use refrigerated transport. Dispatch in the next 2 hours. Notify destination to prepare unloading immediately on arrival.</div>`;
+  else if(riskLevel==='med') action = `<div style="background:#FEF9C3;border-left:3px solid var(--yellow);border-radius:8px;padding:10px 12px;font-size:12px;color:#7D6608;margin-top:4px"><strong>Action:</strong> Use recommended truck type. Monitor temperature during journey. Avoid unnecessary stops.</div>`;
+  else action = `<div style="background:#D5F5E3;border-left:3px solid var(--green);border-radius:8px;padding:10px 12px;font-size:12px;color:#1E6634;margin-top:4px"><strong>Action:</strong> Direct transport to vendor is safe. Standard handling is sufficient under current conditions.</div>`;
+
+  const panel = document.getElementById('rresult');
+  panel.innerHTML = `
+    <div class="risk-meter">
+      <div class="risk-ring ${riskLevel}" id="rrring">${score}%</div>
+      <div class="risk-title">${riskLabel} Spoilage Risk</div>
+      <div class="risk-label">${crop.icon} ${crop.name} · ${time}h journey · ${temp}°C</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:8px 0;border-top:1px solid var(--light-gray);border-bottom:1px solid var(--light-gray)">
+      <span style="color:var(--warm-gray)">Recommended truck</span>
+      <span class="truck-pill ${truckPill}">${truckLabel}</span>
+    </div>
+    ${action}
+    <ul class="decision-list">
+      ${decisions.map(d=>`<li><span class="d-icon">${d.icon}</span><span>${d.text}</span></li>`).join('')}
+    </ul>
+    <div class="ai-box" id="ai-advice">
+      <div class="ai-label">AI Logistics Advisor</div>
+      <div class="ai-spin">Generating field advisory…</div>
+    </div>`;
+
+  getAIAdvice(crop, time, temp, hum, season, cold, riskLabel, score);
+}
+
+async function getAIAdvice(crop, time, temp, hum, season, cold, riskLabel, score) {
+  const prompt = `You are an agricultural logistics expert in India. Give a 3-sentence practical advisory for a logistics manager.
+
+Shipment:
+- Crop: ${crop.name} (shelf life: ${crop.shelfLabel}, ideal temp: ${crop.tempMin}–${crop.tempMax}°C)
+- Journey: ${time} hours
+- Ambient temperature: ${temp}°C, humidity: ${hum}%
+- Season: ${season}
+- Cold storage: ${cold}
+- Spoilage risk score: ${score}/100 (${riskLabel})
+- Recommended truck: ${crop.truck}
+
+Write a specific, direct advisory in 3 sentences max. Mention the crop name. Give 1 concrete action step and 1 regional India context tip (festival demand, season, market). Be concise and professional. No bullet points.`;
+
+  try {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,messages:[{role:'user',content:prompt}]})
+    });
+    const data = await r.json();
+    const txt = data.content?.[0]?.text || 'Advisory unavailable.';
+    const box = document.getElementById('ai-advice');
+    if(box){ box.innerHTML = `<div class="ai-label">AI Logistics Advisor</div><div>${txt}</div>`; }
+  } catch(e) {
+    const box = document.getElementById('ai-advice');
+    if(box){ box.innerHTML = `<div class="ai-label">AI Logistics Advisor</div><div style="color:var(--warm-gray)">Advisory unavailable at this time.</div>`; }
+  }
+}
+
+function renderTrucks() {
+  const tc = document.getElementById('truck-cards');
+  TRUCKS.forEach(t => {
+    tc.innerHTML += `<div class="truck-card ${t.cls}">
+      <div class="truck-header"><span class="icon">${t.icon}</span>${t.label}</div>
+      <div class="truck-body">
+        <p class="truck-desc">${t.desc}</p>
+        <p style="font-size:11px;font-weight:600;color:var(--bark);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Suitable for</p>
+        <div class="crop-tags">${t.crops.map(c=>`<span class="crop-tag">${CROPS.find(x=>x.name===c)?.icon||''} ${c}</span>`).join('')}</div>
+        <p style="font-size:11px;color:var(--warm-gray);margin-top:10px;border-top:1px solid var(--light-gray);padding-top:8px">
+          <strong style="color:var(--bark)">${t.tipIcon} Loading tip:</strong> ${t.tips}
+        </p>
+      </div>
+    </div>`;
+  });
+}
+
+function truckSearch(q) {
+  const div = document.getElementById('truck-result');
+  if(!q){ div.innerHTML=''; return; }
+  const crop = CROPS.find(c=>c.name.toLowerCase().startsWith(q.toLowerCase()));
+  if(!crop){ div.innerHTML=`<div style="padding:12px;color:var(--warm-gray);font-size:13px">No crop found matching "${q}"</div>`; return; }
+  const truck = TRUCKS.find(t=>t.id===crop.truck);
+  const tpill = {refrigerated:'refrig',ventilated:'vent',dry:'dry',insulated:'insul'}[crop.truck];
+  div.innerHTML = `<div style="background:white;border-radius:12px;border:1px solid var(--light-gray);padding:20px;max-width:480px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <span style="font-size:36px">${crop.icon}</span>
+      <div>
+        <div style="font-size:16px;font-weight:600">${crop.name}</div>
+        <div style="font-size:12px;color:var(--warm-gray)">${crop.shelfLabel} · ${crop.tempMin}–${crop.tempMax}°C · ${crop.humidity}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <span style="font-size:12px;color:var(--warm-gray)">Recommended truck:</span>
+      <span class="truck-pill ${tpill}">${truck?.icon} ${truck?.label}</span>
+    </div>
+    <div style="font-size:12px;line-height:1.7;color:var(--soil);padding:10px;background:var(--parchment);border-radius:8px;border-left:3px solid var(--terracotta)">
+      <strong>Loading tip:</strong> ${crop.loadTips}
+    </div>
+    <div style="font-size:12px;color:var(--warm-gray);margin-top:10px">${crop.reco}</div>
+  </div>`;
+}
+
+function renderSpoilageCards() {
+  const div = document.getElementById('spoilage-cards');
+  const sorted = [...CROPS].sort((a,b)=>b.perishability-a.perishability);
+  sorted.forEach(c => {
+    const cls = c.perishability >= 80 ? 'critical' : c.perishability >= 55 ? 'high' : c.perishability >= 30 ? 'medium' : 'low';
+    div.innerHTML += `<div class="spoil-card ${cls}">
+      <div class="spoil-name">${c.icon} ${c.name} <span class="badge ${c.risk==='critical'?'badge-crit':c.risk==='high'?'badge-high':c.risk==='medium'?'badge-med':'badge-low'}" style="font-size:10px;padding:2px 7px">${c.risk}</span></div>
+      <div class="spoil-meta"><span>🌡️ ${c.tempMin}–${c.tempMax}°C</span><span>💧 ${c.humidity}</span><span>⏱ ${c.shelfLabel}</span></div>
+      <div class="spoil-bars">
+        <div class="spoil-bar-row"><span class="spoil-bar-label">Temp sens.</span><div class="spoil-track"><div class="spoil-fill" style="width:${c.tempSens}%;background:${c.tempSens>70?'#C0392B':c.tempSens>40?'#E67E22':'#27AE60'}"></div></div><span style="font-size:10px;color:var(--warm-gray);min-width:28px;text-align:right">${c.tempSens}%</span></div>
+        <div class="spoil-bar-row"><span class="spoil-bar-label">Hum sens.</span><div class="spoil-track"><div class="spoil-fill" style="width:${c.humSens}%;background:${c.humSens>70?'#2980B9':c.humSens>40?'#5DADE2':'#A9CCE3'}"></div></div><span style="font-size:10px;color:var(--warm-gray);min-width:28px;text-align:right">${c.humSens}%</span></div>
+        <div class="spoil-bar-row"><span class="spoil-bar-label">Perishability</span><div class="spoil-track"><div class="spoil-fill" style="width:${c.perishability}%;background:${c.perishability>70?'#922B21':c.perishability>40?'#CB4335':'#82E0AA'}"></div></div><span style="font-size:10px;color:var(--warm-gray);min-width:28px;text-align:right">${c.perishability}%</span></div>
+      </div>
+    </div>`;
+  });
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// Init
+renderTable(CROPS);
+populateRiskCrop();
+renderTrucks();
+renderSpoilageCards();
+filterCat('all');
+</script>
+</body>
+</html>

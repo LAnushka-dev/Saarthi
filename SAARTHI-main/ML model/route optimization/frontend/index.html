@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Route Optimization (Road + Rail)</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <h1>Route Optimization Model</h1>
+        <p class="subtitle">Dijkstra on Indian road + rail graph with Claude-style route explanations</p>
+      </header>
+
+      <section class="grid">
+        <div class="panel controls">
+          <h2>Build Route</h2>
+
+          <label>
+            Origin
+            <select id="origin"></select>
+          </label>
+
+          <label>
+            Destination
+            <select id="destination"></select>
+          </label>
+
+          <fieldset class="segmented">
+            <legend>Mode</legend>
+            <label><input type="radio" name="mode" value="road" /> Road only</label>
+            <label><input type="radio" name="mode" value="rail" /> Rail only</label>
+            <label checked><input type="radio" name="mode" value="road_rail" /> Road + Rail</label>
+          </fieldset>
+
+          <label>
+            Optimize by
+            <select id="optimizeBy">
+              <option value="time" selected>Fastest (time)</option>
+              <option value="cost">Cheapest (toll/fare)</option>
+              <option value="km">Shortest (km)</option>
+            </select>
+          </label>
+
+          <label>
+            Cargo type
+            <select id="cargoType">
+              <optgroup label="1. Perishable Goods">
+                <option value="Perishable Goods|Fruits, vegetables" selected>Fruits, vegetables</option>
+                <option value="Perishable Goods|Dairy products">Dairy products</option>
+                <option value="Perishable Goods|Meat, seafood">Meat, seafood</option>
+              </optgroup>
+              <optgroup label="2. Non-Perishable Goods">
+                <option value="Non-Perishable Goods|Packaged food">Packaged food</option>
+                <option value="Non-Perishable Goods|Grains, pulses">Grains, pulses</option>
+                <option value="Non-Perishable Goods|FMCG products">FMCG products</option>
+              </optgroup>
+              <optgroup label="3. Fragile Goods">
+                <option value="Fragile Goods|Glass items">Glass items</option>
+                <option value="Fragile Goods|Electronics">Electronics</option>
+                <option value="Fragile Goods|Ceramics">Ceramics</option>
+              </optgroup>
+              <optgroup label="4. Hazardous Materials (Hazmat)">
+                <option value="Hazardous Materials (Hazmat)|Fuel (petrol, diesel)">Fuel (petrol, diesel)</option>
+                <option value="Hazardous Materials (Hazmat)|LPG / gas">LPG / gas</option>
+                <option value="Hazardous Materials (Hazmat)|Chemicals">Chemicals</option>
+                <option value="Hazardous Materials (Hazmat)|Explosives">Explosives</option>
+              </optgroup>
+              <optgroup label="5. Livestock">
+                <option value="Livestock|Cattle">Cattle</option>
+                <option value="Livestock|Poultry">Poultry</option>
+                <option value="Livestock|Sheep, goats">Sheep, goats</option>
+              </optgroup>
+              <optgroup label="6. Heavy / Bulk Cargo">
+                <option value="Heavy / Bulk Cargo|Steel">Steel</option>
+                <option value="Heavy / Bulk Cargo|Cement">Cement</option>
+                <option value="Heavy / Bulk Cargo|Machinery">Machinery</option>
+                <option value="Heavy / Bulk Cargo|Construction equipment">Construction equipment</option>
+              </optgroup>
+              <optgroup label="7. High-Value Goods">
+                <option value="High-Value Goods|Gold, jewelry">Gold, jewelry</option>
+                <option value="High-Value Goods|Cash">Cash</option>
+                <option value="High-Value Goods|Premium electronics">Premium electronics</option>
+              </optgroup>
+              <optgroup label="8. General Cargo">
+                <option value="General Cargo|Clothing">Clothing</option>
+                <option value="General Cargo|Retail goods">Retail goods</option>
+                <option value="General Cargo|Mixed shipments">Mixed shipments</option>
+              </optgroup>
+              <optgroup label="9. Oversized Cargo">
+                <option value="Oversized Cargo|Windmill blades">Windmill blades</option>
+                <option value="Oversized Cargo|Large industrial parts">Large industrial parts</option>
+                <option value="Oversized Cargo|Modular structures">Modular structures</option>
+              </optgroup>
+              <optgroup label="10. Liquid Cargo">
+                <option value="Liquid Cargo|Milk">Milk</option>
+                <option value="Liquid Cargo|Oil">Oil</option>
+                <option value="Liquid Cargo|Chemicals (non-hazardous)">Chemicals (non-hazardous)</option>
+              </optgroup>
+            </select>
+          </label>
+
+          <div class="row">
+            <label class="inline">
+              <input type="checkbox" id="useMl" />
+              Use ML weight adjuster
+            </label>
+          </div>
+
+          <div class="row">
+            <label>
+              Month (optional)
+              <input id="month" type="number" min="1" max="12" placeholder="auto" />
+            </label>
+          </div>
+
+          <button id="computeBtn" class="primary">Compute route</button>
+          <div id="status" class="status"></div>
+        </div>
+
+        <div class="panel map">
+          <h2>India Map</h2>
+          <div id="gmap" class="gmap"></div>
+          <div class="mapNote">
+            Works without API key using OpenStreetMap. Add Google API key in <code>frontend/config.js</code> if you prefer Google Maps.
+          </div>
+        </div>
+
+        <div class="panel results">
+          <h2>Route Output</h2>
+          <div id="explanation" class="explanation"></div>
+
+          <h3>Totals</h3>
+          <div id="totals" class="totals"></div>
+
+          <h3>Alerts</h3>
+          <ul id="alerts" class="bullets"></ul>
+
+          <h3>Cargo intelligence</h3>
+          <ul id="cargoNotes" class="bullets"></ul>
+
+          <h3>Segments</h3>
+          <div class="segmentsWrap">
+            <table id="segmentsTable" class="segments">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Type</th>
+                  <th>Label</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Time</th>
+                  <th>Cost</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="/config.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>
+
